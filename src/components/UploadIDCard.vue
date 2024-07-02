@@ -58,6 +58,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
+import axios from "axios";
 
 interface UpdateEvent {
   type: 'front' | 'back'
@@ -73,9 +74,9 @@ const backInput = ref<HTMLInputElement | null>(null)
 const frontImage = ref<string | null>(null)
 const backImage = ref<string | null>(null)
 
-const handleFileChange = (type: 'front' | 'back') => {
+const handleFileChange = async (type: 'front' | 'back') => {
   const input = type === 'front' ? frontInput.value : backInput.value
-  const file = input?.files ? input.files[0] : null
+  const file = input?.files ? input.files![0] : null
 
   if (file && file.type.startsWith('image/')) {
     const reader = new FileReader()
@@ -85,14 +86,34 @@ const handleFileChange = (type: 'front' | 'back') => {
       } else {
         backImage.value = reader.result as string
       }
-      emit('update', { type, status: 'success' })
-      ElMessage.success('圖片上傳成功')
     }
     reader.onerror = () => {
-      emit('update', { type, status: 'error' })
+      emit('update', {type, status: 'error'})
+      ElMessage.error('圖片讀取失敗')
+    }
+
+    const formData = new FormData();
+    // todo abcdefg改成random16DigitNumber
+    formData.append('abcdefg_idcardf', file)
+    try {
+      // todo http://192.168.10.229:4321/app去掉，拦截器的地方把VITE_API_BASE_URL配置进去
+      const response = await axios.post('http://192.168.10.229:4321/app/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (response.data.code === 0) {
+        emit('update', {type, status: 'success'})
+        ElMessage.success('圖片上傳成功')
+        reader.readAsDataURL(file)
+      } else {
+        emit('update', {type, status: 'error'})
+        ElMessage.error('圖片上傳失敗')
+      }
+    } catch (error) {
+      emit('update', {type, status: 'error'})
       ElMessage.error('圖片上傳失敗')
     }
-    reader.readAsDataURL(file)
   } else {
     ElMessage.error('請選擇圖片文件')
   }
