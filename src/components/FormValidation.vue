@@ -7,6 +7,7 @@
     label-position="top"
   >
     <el-form-item label="1. 姓名" prop="name">
+      <div style="color: black">{{ ruleForm.hush }}</div>
       <el-input clearable v-model="ruleForm.name" placeholder="輸入姓名" />
     </el-form-item>
     <el-form-item label="2. 身份證號碼" prop="DocumentNumber">
@@ -101,7 +102,11 @@
     </el-form-item>
 
     <el-form-item label="11. 上傳身分證照片">
-      <UploadIDCard style="margin-top: 2px" @update="handleUpdate" />
+      <UploadIDCard
+        :id="random16DigitNumber"
+        style="margin-top: 2px"
+        @update="handleUpdate"
+      />
       <!-- <div style="color: aqua">
         <p>正面照片状态: {{ frontStatus }}</p>
         <p>反面照片状态: {{ backStatus }}</p>
@@ -177,8 +182,10 @@ import {
   type FormInstance,
   type FormRules
 } from 'element-plus'
+import router from '@/router'
+import useFormStore from '@/store/modules/formStore'
 interface UpdateEvent {
-  type: 'front' | 'back'
+  type: 'idcardf' | 'idcardb'
   status: 'success' | 'error' | 'removed'
 }
 
@@ -186,12 +193,29 @@ const frontStatus = ref('未上传')
 const backStatus = ref('未上传')
 
 const handleUpdate = ({ type, status }: UpdateEvent) => {
-  if (type === 'front') {
+  if (type === 'idcardf') {
     frontStatus.value = status
-  } else if (type === 'back') {
+  } else if (type === 'idcardb') {
     backStatus.value = status
   }
 }
+
+// 定义一个响应式变量，用于存储生成的随机18位数
+const random16DigitNumber = ref(generateRandom16DigitNumber())
+
+// 生成18位随机数的函数
+function generateRandom16DigitNumber(): string {
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let hash = ''
+  for (let i = 0; i < 18; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    hash += characters[randomIndex]
+  }
+  return hash
+}
+
+
 
 const videoHandleStatus = ref('未上传')
 const videoHandleUpdate = (payload: { status: string }) => {
@@ -206,6 +230,7 @@ const videoHandleUpdate = (payload: { status: string }) => {
   }
 }
 interface RuleForm {
+  hush: string // 隐藏字段
   name: string // 姓名
   DocumentNumber: string // 身份证号码
   Mobile: string // 手机号
@@ -219,6 +244,7 @@ interface RuleForm {
 }
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
+  hush: random16DigitNumber.value,
   name: '',
   DocumentNumber: '',
   Mobile: '',
@@ -331,12 +357,13 @@ const validateForm = async (
 
   return true
 }
-
+const formStore = useFormStore()
 const handleSubmit = async (
   formEl: FormInstance | undefined,
   action: string
 ) => {
   const isValid = await validateForm(formEl)
+
   if (isValid) {
     console.log('Form validated for:', action)
     if (action === 'submit') {
@@ -345,28 +372,12 @@ const handleSubmit = async (
     } else if (action === 'sign') {
       // 签名逻辑
       console.log('View and sign operation.')
+      formStore.setFormData(ruleForm)
+      router.push({
+        path: '/viewAndSign'
+      })
     }
   }
-}
-// router.push({ path: '/viewAndSign' })
-
-// 定义一个响应式变量，用于存储生成的随机16位数
-const random16DigitNumber = ref(generateRandom16DigitNumber())
-
-// 生成16位随机数的函数
-function generateRandom16DigitNumber() {
-  let randomNumber = ''
-  // 循环生成随机数，直到长度为16
-  while (randomNumber.length < 16) {
-    randomNumber += Math.floor(Math.random() * 10) // 生成0-9之间的随机整数
-  }
-  return randomNumber // 返回生成的16位随机数
-}
-
-// 生成新的随机数，并更新 random16DigitNumber 的值
-function generateRandomNumber() {
-  random16DigitNumber.value = generateRandom16DigitNumber()
-  console.log('new random number:', random16DigitNumber.value)
 }
 
 const SourceOfFundsOptions = ref([
@@ -403,11 +414,11 @@ const resetForm = (formEl: FormInstance | undefined) => {
   ruleForm.Mobile = ''
   frontStatus.value = '未上传'
   backStatus.value = '未上传'
-  generateRandomNumber()
+
 }
 
 onMounted(() => {
-  generateRandomNumber()
+
 })
 </script>
 

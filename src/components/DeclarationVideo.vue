@@ -1,6 +1,10 @@
 <template>
   <div class="DeclarationVideo">
-    <div class="upload-container">
+    <div
+      v-loading="loading"
+      class="upload-container"
+      @click="DeclarationVideoClick('DeclarationVideo')"
+    >
       <input
         ref="DeclarationVideoInput"
         id="DeclarationVideoUpload"
@@ -15,13 +19,13 @@
           <div>上傳聲明影片</div>
         </label>
       </div>
-      <div v-else class="video-preview">
+      <div v-loading="loading" v-else class="video-preview">
         <video
           :src="DeclarationVideoVideo"
           controls
-          @click="DeclarationVideoClick('DeclarationVideo')"
+          @click.stop="DeclarationVideoClick('DeclarationVideo')"
         ></video>
-        <button @click="removeVideo('DeclarationVideo')">移除</button>
+        <button @click.stop="removeVideo('DeclarationVideo')">移除</button>
       </div>
     </div>
   </div>
@@ -40,11 +44,12 @@ interface UpdateEvent {
 const emit = defineEmits<{
   (e: 'update', payload: UpdateEvent): void
 }>()
-
+const loading = ref(false)
 const DeclarationVideoInput = ref<HTMLInputElement | null>(null)
 const DeclarationVideoVideo = ref<string | null>(null)
 
 const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
+  loading.value = true
   const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
   const file = input?.files ? input.files[0] : null
 
@@ -67,6 +72,7 @@ const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
       ElMessage.error('請選擇視訊文件')
       input!.value = '' // 清空输入以防止再次选择相同文件
     }
+    loading.value = false
   }
 }
 

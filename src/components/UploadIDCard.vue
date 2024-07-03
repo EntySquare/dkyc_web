@@ -8,21 +8,21 @@
         type="file"
         class="upload-input"
         accept="image/*"
-        @change="handleFileChange('front')"
+        @change="handleFileChange('idcardf')"
       />
-      <div v-if="!frontImage" class="upload-text">
+      <div v-loading="loading" v-if="!frontImage" class="upload-text">
         <label for="frontUpload" class="upload-label">
           <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳身分證<span class="bluesc">正面</span></div>
         </label>
       </div>
-      <div v-else class="image-preview">
+      <div v-loading="loading" v-else class="image-preview">
         <img
           :src="frontImage"
           alt="身分證正面預覽"
-          @click="handleFileClick('front')"
+          @click="handleFileClick('idcardf')"
         />
-        <button @click="removeImage('front')">移除</button>
+        <button @click="removeImage('idcardf')">移除</button>
       </div>
     </div>
 
@@ -34,21 +34,21 @@
         type="file"
         class="upload-input"
         accept="image/*"
-        @change="handleFileChange('back')"
+        @change="handleFileChange('idcardb')"
       />
-      <div v-if="!backImage" class="upload-text">
+      <div v-loading="loading1" v-if="!backImage" class="upload-text">
         <label for="backUpload" class="upload-label">
           <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳身分證<span class="bluesc">反面</span></div>
         </label>
       </div>
-      <div v-else class="image-preview">
+      <div v-loading="loading1" v-else class="image-preview">
         <img
           :src="backImage"
           alt="身份证背面预览"
-          @click="handleFileClick('back')"
+          @click="handleFileClick('idcardb')"
         />
-        <button @click="removeImage('back')">移除</button>
+        <button @click="removeImage('idcardb')">移除</button>
       </div>
     </div>
   </div>
@@ -58,13 +58,16 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
-import axios from "axios";
+import axios from 'axios'
+import { uploadImage } from '@/api/upload'
 
 interface UpdateEvent {
-  type: 'front' | 'back'
+  type: 'idcardf' | 'idcardb'
   status: 'success' | 'error' | 'removed'
 }
-
+const loading = ref(false)
+const loading1 = ref(false)
+const props = defineProps<{ id: string }>()
 const emit = defineEmits<{
   (e: 'update', payload: UpdateEvent): void
 }>()
@@ -74,53 +77,61 @@ const backInput = ref<HTMLInputElement | null>(null)
 const frontImage = ref<string | null>(null)
 const backImage = ref<string | null>(null)
 
-const handleFileChange = async (type: 'front' | 'back') => {
-  const input = type === 'front' ? frontInput.value : backInput.value
+const uploadFile = async (
+  file: File,
+  type: 'idcardf' | 'idcardb' | 'pdf' | 'video'
+) => {}
+
+const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
+  const input = type === 'idcardf' ? frontInput.value : backInput.value
   const file = input?.files ? input.files![0] : null
 
   if (file && file.type.startsWith('image/')) {
     const reader = new FileReader()
     reader.onload = () => {
-      if (type === 'front') {
+      if (type === 'idcardf') {
         frontImage.value = reader.result as string
       } else {
         backImage.value = reader.result as string
       }
     }
     reader.onerror = () => {
-      emit('update', {type, status: 'error'})
+      emit('update', { type, status: 'error' })
       ElMessage.error('圖片讀取失敗')
     }
-
-    const formData = new FormData();
+    // 上传开始
+    loading.value = true
+    const formData = new FormData()
     // todo abcdefg改成random16DigitNumber
-    formData.append('abcdefg_idcardf', file)
+    // 身份证正面 idcardf 背面 idcardb pdf pdf 视频 video
+    console.log('props.id', props.id)
+
+    formData.append(`${props.id}_idcardf`, file)
     try {
       // todo http://192.168.10.229:4321/app去掉，拦截器的地方把VITE_API_BASE_URL配置进去
-      const response = await axios.post('http://192.168.10.229:4321/app/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+
+      const response = await uploadImage(formData, 'multipart/form-data')
       if (response.data.code === 0) {
-        emit('update', {type, status: 'success'})
+        emit('update', { type, status: 'success' })
         ElMessage.success('圖片上傳成功')
         reader.readAsDataURL(file)
       } else {
-        emit('update', {type, status: 'error'})
+        emit('update', { type, status: 'error' })
         ElMessage.error('圖片上傳失敗')
       }
     } catch (error) {
-      emit('update', {type, status: 'error'})
+      emit('update', { type, status: 'error' })
       ElMessage.error('圖片上傳失敗')
     }
   } else {
     ElMessage.error('請選擇圖片文件')
   }
+  loading.value = false
+  //上传结束
 }
 
-const removeImage = (type: 'front' | 'back') => {
-  if (type === 'front') {
+const removeImage = (type: 'idcardf' | 'idcardb') => {
+  if (type === 'idcardf') {
     frontImage.value = null
     frontInput.value!.value = '' // 清空input的值
   } else {
@@ -130,8 +141,8 @@ const removeImage = (type: 'front' | 'back') => {
   emit('update', { type, status: 'removed' })
 }
 
-const handleFileClick = (type: 'front' | 'back') => {
-  const input = type === 'front' ? frontInput.value : backInput.value
+const handleFileClick = (type: 'idcardf' | 'idcardb') => {
+  const input = type === 'idcardf' ? frontInput.value : backInput.value
   if (input) {
     input.click()
   }

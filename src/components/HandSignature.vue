@@ -49,7 +49,7 @@ let lastY = 0
 const draw = (x: number, y: number) => {
   if (!ctx) return
   ctx.strokeStyle = '#000'
-  ctx.lineWidth = 2
+  ctx.lineWidth = 4
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
@@ -113,10 +113,10 @@ const isCanvasBlank = (canvas: HTMLCanvasElement) => {
 const submitSignature = () => {
   if (canvas.value) {
     if (isCanvasBlank(canvas.value)) {
-      ElMessage.warning('请签名')
+      ElMessage.warning('請簽名')
     } else {
       const dataURL = canvas.value.toDataURL('image/png')
-      ElMessage.success('签名已保存')
+      ElMessage.success('簽名已保存')
       emit('signatureSubmitted', dataURL)
       internalDialogVisible.value = false
     }
