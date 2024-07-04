@@ -1,7 +1,7 @@
-import request from '@/utils/request'
+import { request, fileRequest } from '@/utils/request'
 
 export const uploadImage = (data: any, headers: any) => {
-    return request({
+    return fileRequest({
         url: '/upload',
         method: 'post',
         data,

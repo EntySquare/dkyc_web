@@ -184,6 +184,7 @@ import {
 } from 'element-plus'
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
+import { FormUpload } from '@/api/upload'
 interface UpdateEvent {
   type: 'idcardf' | 'idcardb'
   status: 'success' | 'error' | 'removed'
@@ -200,8 +201,12 @@ const handleUpdate = ({ type, status }: UpdateEvent) => {
   }
 }
 
+const formStore = useFormStore()
+const form = formStore.form
+
 // 定义一个响应式变量，用于存储生成的随机18位数
-const random16DigitNumber = ref(generateRandom16DigitNumber())
+const random16DigitNumber =
+  form.hush !== '' ? ref(form.hush) : ref(generateRandom16DigitNumber())
 
 // 生成18位随机数的函数
 function generateRandom16DigitNumber(): string {
@@ -212,6 +217,8 @@ function generateRandom16DigitNumber(): string {
     const randomIndex = Math.floor(Math.random() * characters.length)
     hash += characters[randomIndex]
   }
+  console.log('hush', hash)
+
   return hash
 }
 
@@ -240,6 +247,21 @@ interface RuleForm {
   WalletAddress: string // 接收方钱包地址
   officialValue: string // 是否有五级等以内为重要政治性职务人士
 }
+
+interface RuleFormRequest {
+  hush: string // 隐藏字段
+  name: string // 姓名
+  id_card: string // 身份证号码
+  phone: string // 手机号
+  mail_address: string // 通讯地址
+  amount: number // 金额
+  buy_or_sell: number // 买/卖 (1-买, 2-卖)
+  funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
+  UseOfExpensesValue: number // 委托买费用途 (按实际情况处理)
+  wallet_address: string // 接收方钱包地址
+  political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
+}
+
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
   hush: random16DigitNumber.value,
@@ -254,7 +276,19 @@ const ruleForm = reactive<RuleForm>({
   MailingAddress: '',
   WalletAddress: ''
 })
-
+const formRequest = reactive<RuleFormRequest>({
+  hush: ruleForm.hush,
+  name: ruleForm.name,
+  id_card: ruleForm.DocumentNumber,
+  phone: ruleForm.Mobile,
+  mail_address: ruleForm.Business,
+  amount: Number(ruleForm.Amount),
+  buy_or_sell: ruleForm.SourceOfFundsValue == '買' ? 1 : 2,
+  funding_source: Number(ruleForm.UseOfExpensesValue),
+  UseOfExpensesValue: Number(ruleForm.officialValue),
+  wallet_address: ruleForm.MailingAddress,
+  political: Number(ruleForm.WalletAddress)
+})
 // 表单验证规则
 const rules = reactive<FormRules<RuleForm>>({
   name: [
@@ -355,7 +389,6 @@ const validateForm = async (
 
   return true
 }
-const formStore = useFormStore()
 const handleSubmit = async (
   formEl: FormInstance | undefined,
   action: string
@@ -370,7 +403,8 @@ const handleSubmit = async (
       console.log('Form submitted successfully!')
     } else if (action === 'sign') {
       // 签名逻辑
-      console.log('View and sign operation.')
+      console.log('View and sign operation.', ruleForm)
+      await FormUpload(form)
       formStore.setFormData(ruleForm)
       router.push({
         path: '/viewAndSign'

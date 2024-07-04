@@ -83,23 +83,33 @@ const uploadFile = async (
 ) => {}
 
 const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
+  // 根据 type 确定使用哪个输入元素
   const input = type === 'idcardf' ? frontInput.value : backInput.value
+
+  // 获取选择的文件
   const file = input?.files ? input.files[0] : null
 
+  // 检查是否选择了文件且文件类型为图片
   if (file && file.type.startsWith('image/')) {
-    // 立即开始转换状态
+    // 开始显示加载状态
     if (type === 'idcardf') {
       loading.value = true
     } else if (type === 'idcardb') {
       loading1.value = true
     }
 
+    // 创建 FileReader 对象用于读取文件内容
     const reader = new FileReader()
+
+    // 创建 FormData 对象用于构建表单数据
     const formData = new FormData()
 
+    // 向 formData 添加文件，使用 `${props.id}_${type}` 作为表单字段名
     formData.append(`${props.id}_${type}`, file)
 
+    // 当 FileReader 加载完成时执行
     reader.onload = () => {
+      // 根据 type 将读取的文件内容存入相应的 ref 中
       if (type === 'idcardf') {
         frontImage.value = reader.result as string
       } else if (type === 'idcardb') {
@@ -107,41 +117,36 @@ const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
       }
     }
 
+    // 当 FileReader 加载出错时执行
     reader.onerror = () => {
+      // 发送错误更新事件和消息提示
       emit('update', { type, status: 'error' })
       ElMessage.error('圖片讀取失敗')
     }
 
     try {
+      // 调用上传图片的函数，并传递 FormData 对象
       const response = await uploadImage(formData, 'multipart/form-data')
+
+      // 检查服务器响应
       if (response.data.code === 0) {
+        // 发送成功更新事件和消息提示
         emit('update', { type, status: 'success' })
         ElMessage.success('圖片上傳成功')
 
-        // 上传成功后结束转圈圈
-        if (type === 'idcardf') {
-          loading.value = false
-        } else if (type === 'idcardb') {
-          loading1.value = false
-        }
-
+        // 上传成功后读取文件内容并显示
         reader.readAsDataURL(file)
       } else {
+        // 发送失败更新事件和消息提示
         emit('update', { type, status: 'error' })
         ElMessage.error('圖片上傳失敗')
-
-        // 上传失败也要结束转圈圈
-        if (type === 'idcardf') {
-          loading.value = false
-        } else if (type === 'idcardb') {
-          loading1.value = false
-        }
       }
     } catch (error) {
+      // 发送异常更新事件和消息提示
       emit('update', { type, status: 'error' })
       ElMessage.error('圖片上傳失敗')
-
-      // 异常情况也要结束转圈圈
+    } finally {
+      // 无论成功或失败，结束加载状态
       if (type === 'idcardf') {
         loading.value = false
       } else if (type === 'idcardb') {
@@ -149,6 +154,7 @@ const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
       }
     }
   } else {
+    // 如果没有选择文件或文件类型不是图片，显示错误消息
     ElMessage.error('請選擇圖片文件')
   }
 }
