@@ -1,6 +1,7 @@
 <template>
   <div class="home_view">
     <div class="container">
+      <ConvertJsonDataToPdf />
       <div class="KYC_Disclaimer">
         <div class="KYC_Disclaimer_F">
           <div class="KYC_Disclaimer_logo">

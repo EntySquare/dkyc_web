@@ -215,8 +215,6 @@ function generateRandom16DigitNumber(): string {
   return hash
 }
 
-
-
 const videoHandleStatus = ref('未上传')
 const videoHandleUpdate = (payload: { status: string }) => {
   console.log('Update event:', payload)
@@ -363,6 +361,7 @@ const handleSubmit = async (
   action: string
 ) => {
   const isValid = await validateForm(formEl)
+  // const isValid = true
 
   if (isValid) {
     console.log('Form validated for:', action)
@@ -414,12 +413,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
   ruleForm.Mobile = ''
   frontStatus.value = '未上传'
   backStatus.value = '未上传'
-
 }
 
-onMounted(() => {
-
-})
+onMounted(() => {})
 </script>
 
 <style scoped lang="less">

@@ -1,4 +1,3 @@
-<!-- ParentComponent.vue -->
 <template>
   <div class="home_view">
     <HandSignature
@@ -9,13 +8,12 @@
       v-model:dialogVisible="dialogVisible1"
       @signatureSubmitted="handleSignatureSubmitted1"
     />
-    <div class="TradingDisclaime">
+    <div id="pdf-content" class="TradingDisclaime">
       <div class="TradingDisclaime_title">虚擬通貨交易免責聲明</div>
       <div class="TradingDisclaimeOne">
         <div class="F-500-000">交易須知:</div>
         <p class="F-400-16">
-          1.
-          貴用戶理解，從事虛礙通就投資交易有一定之風險，並非保證獲利，貴用戶應自行研究委
+          1. 貴用戶理解，從事虛礙通就投資交易有一定之風險，並非保證獲利，貴用戶應自行研究委
           託代購之商品之真實、價值性及有效性。貴用戶於收到依費用戶指定代為購買之比特幣、
           USOT或其他虛擬通資後，本次委任關係即為完成，貴用戶不能(1)以任何理由解除、搬
           銷、撤回、終止購買虛擬貨幣之委任契約(2)主張返回本服務處代為購買之任何虛擬通
@@ -28,44 +26,37 @@
           費用。
         </p>
         <p class="F-400-16">
-          2.
-          本服務處係接受貴用戶委任，代為買賣、交易、移轉虛擬通貨之服務商，本服務處不參與
+          2. 本服務處係接受貴用戶委任，代為買賣、交易、移轉虛擬通貨之服務商，本服務處不參與
           任何處擬通資投資平台之行政及營揮，亦非虚擬通貨之實際買家或賣家。
         </p>
         <p class="F-400-16">
-          3.
-          貴用戶透過本代為購入虛擬通貨之價格，應依照貴用戶指定購入之幣別及交易時間之火
+          3. 貴用戶透過本代為購入虛擬通貨之價格，應依照貴用戶指定購入之幣別及交易時間之火
           幣平台现貨，幣安平台现貨之即時行情進行計算。
         </p>
         <p class="F-400-16">
-          4.
-          在您同意後交易契約始成立，一切紀錄内容將作為履約憑證，您收到我方給付之比特幣或
+          4. 在您同意後交易契約始成立，一切紀錄内容將作為履約憑證，您收到我方給付之比特幣或
           USDT或其它虚疑通貨後，不得再以任何理由解除貫賣契約，或主張受詐欺或其他犯罪被害
           ，若有違反，應賠償相當交易金额十倍之懲罰性違約金，對無端造事者將由委任律師提刑事
           告訴则民事損害賠償，且應賠償我方支付之律師費用。
         </p>
         <p class="F-400-16">
-          5.
-          貴用户透過本服務代為購買並收到本服務處給付之比特幣、USDT或其它虛擬通貨後，一
+          5. 貴用户透過本服務代為購買並收到本服務處給付之比特幣、USDT或其它虛擬通貨後，一
           切行為概與本服務處量無涉。貴用戶並應保證絕無利用本服務處代為購入之虚擬通貨進行洗
           錢或從事任何犯罪行為之情形。如有因此造成本服務處產生任何損害，貴用戶並承諾賠償本
           服務處因此產生之損失。
         </p>
         <p class="F-400-16">
-          6.
-          貴用戶保證不使用匿名或假名身分，且所有填寫，提供予本服務處之文件、資料及個人身
+          6. 貴用戶保證不使用匿名或假名身分，且所有填寫，提供予本服務處之文件、資料及個人身
           份證明文件均正確無誤，如因提供任何不實資訊，以致產生任何刑事、行政或民事責任，全
           由貴用戶自行負責。如有因此造成本服務處產生任何損害，貴用戶並承諾賠償本服務處因此
           產生之損失。
         </p>
         <p class="F-400-16">
-          7.
-          貴用戶同意本服務處得於業務必要範圍内蒐集、利用及處理貴用戶之個入資料，並依相關
+          7. 貴用戶同意本服務處得於業務必要範圍内蒐集、利用及處理貴用戶之個入資料，並依相關
           政府法令或政府單位、司法單位之要求，提供貴用戶之個人資料。
         </p>
         <p class="F-400-16">
-          8.
-          如經本服務處發現貴用戶有疑似下列情形時，本服務處得逕行拒絕或終止對貴用戶提供服
+          8. 如經本服務處發現貴用戶有疑似下列情形時，本服務處得逕行拒絕或終止對貴用戶提供服
           務:(1)疑似使用匿名、假名、人頭。虛設行號或法人建立業務關係。(2)不尋常拖延或拒絕
           提供身分相關證明文件。(3)持用或疑似持用偽、變造身分證明文件。(4)有刑事詐欺、洗錢
           等刑事犯罪前料。
@@ -76,15 +67,9 @@
             label="我本人已閱請以上條款 : "
             size="large"
           />
-          <div class="Q_signature">
-            <div v-if="!signatureImage" @click="dialogVisible = true">
-              點擊簽名
-            </div>
-            <div
-              v-if="signatureImage"
-              @click="dialogVisible = true"
-              class="signature-display"
-            >
+          <div class="Q_signature" @click="dialogVisible = true">
+            <div v-if="!signatureImage">點擊簽名</div>
+            <div v-if="signatureImage" class="signature-display">
               <img :src="signatureImage" alt="签名图片" class="signature-img" />
             </div>
           </div>
@@ -97,8 +82,7 @@
       </div>
       <div class="TradingDisclaimeTwo">
         <p class="F-400-16">
-          9.
-          如貴用戶使用本服務處提供之服務時，視為已閱讀並接受本聲明書一切條款。
+          9. 如貴用戶使用本服務處提供之服務時，視為已閱讀並接受本聲明書一切條款。
         </p>
         <p class="F-400-16">
           10. 雙方如因本聲明書內容發生糾紛，同意以台灣地方法院為第一審管轄法院。
@@ -133,42 +117,30 @@
         <div class="text_content1">
           <span class="overbold"
             >本人
-            <span class="texs"> {{ form.name }} </span> 買/賣(虚擬通貨貨幣)
-            <span class="texs">{{ form.Business }} </span> 相當於新臺幣
-            <span class="texs">{{ form.Amount }}</span> 元之虚擬通貨。</span
+            <span class="texs"> {{ form.name }} </span></span
           >
-          此委託行為保證皆為本人親自操作，如有不實、願負一切法律責任，本人保證上開帳
-          戶之資金來源正常，絕非以非法手段(例如詐騙、毒品交易等)取得之金錢，且對於
-          委託購質之虚擬通貨之真實性、價值性、有效性及用途均清楚知悉。本人保證絕不會
-          涉及任何不法詐騙、洗錢或任何犯罪行為。上述聲明內容如有違反，本人願自行承擔
-          一切相關法律風險，如對貴服務處造成任何損害，願意賠償貴服務處相當於委託金额
-          十倍之懲罰性違約金，並為此支出之律師費用。
+          已詳細閱讀並理解所有上述內容, 我了解並同意受此聲明書之所有條款及條件約束。
         </div>
-        <div class="SignatureArea">
-          <div
-            class="PleaseSign"
-            v-if="!signatureImage1"
-            @click="dialogVisible1 = true"
-          >
-            請簽名
+        <div class="text_content1">簽名</div>
+        <div class="texs1">
+          <div class="Q_signature1" @click="dialogVisible1 = true">
+            <div v-if="!signatureImage1">點擊簽名</div>
+            <div v-if="signatureImage1" class="signature-display">
+              <img :src="signatureImage1" alt="签名图片" class="signature-img" />
+            </div>
           </div>
-          <div
-            v-if="signatureImage1"
-            @click="dialogVisible1 = true"
-            class="PleaseSignImg"
-          >
-            <img
-              :src="signatureImage1"
-              alt="签名图片"
-              class="PleaseSignImg-img"
-            />
-          </div>
+        </div>
+        <div class="RepublicOfChina">
+          中華民國 <span class="texs">{{ year }}</span> 年
+          <span class="texs">{{ month }}</span> 月
+          <span class="texs">{{ day }}</span> 日
         </div>
       </div>
-      <div class="RepublicOfChina">
-        中華民國 <span class="texs">{{ year }}</span> 年
-        <span class="texs">{{ month }}</span> 月
-        <span class="texs">{{ day }}</span> 日
+    </div>
+
+    <div style="width: 100%; display: flex; justify-content: end">
+      <div class="SubmissionOfDeclaration" @click="generatePDF">
+        提交聲明
       </div>
     </div>
   </div>
@@ -178,6 +150,9 @@
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
 import { onMounted, ref } from 'vue'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+import axios from 'axios'
 
 const dialogVisible = ref(false)
 const dialogVisible1 = ref(false)
@@ -253,21 +228,71 @@ const UseOfExpensesOptionsfun = () => {
     UseOfExpensesOptions.value = '其他'
   }
 }
+
+// 生成 PDF 并上传到服务器
+const generatePDF = async () => {
+  const pdfContent = document.getElementById('pdf-content')
+  if (pdfContent) {
+    const canvas = await html2canvas(pdfContent)
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    const imgProps = pdf.getImageProperties(imgData)
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    
+    // 提供下载预览功能
+    pdf.save('document.pdf')
+
+    // 上传到服务器
+    const pdfBlob = pdf.output('blob')
+    const formData = new FormData()
+    formData.append('file', pdfBlob, 'document.pdf')
+
+    try {
+      const response = await axios.post('YOUR_BACKEND_API_URL', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      console.log('文件上传成功', response.data)
+    } catch (error) {
+      console.error('文件上传失败', error)
+    }
+  }
+}
 </script>
+
+<style scoped lang="less">
+/* 这里是现有的样式 */
+</style>
 
 <style scoped lang="less">
 .texs {
   color: red;
 }
+.SubmissionOfDeclaration {
+  margin-top: 40px;
+  width: 160px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  background: red;
+  color: #fff;
+}
 .home_view {
-  padding: 20px 14px;
+  padding: 20px 20px;
   display: flex;
   flex-direction: column;
   color: #000000;
+  width: 100%;
   .TradingDisclaime {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 97vw;
   }
   .TradingDisclaime_title {
     text-align: center;

@@ -10,12 +10,12 @@
         accept="image/*"
         @change="handleFileChange('idcardf')"
       />
-      <div v-loading="loading" v-if="!frontImage" class="upload-text">
-        <label for="frontUpload" class="upload-label">
+      <label v-if="!frontImage" for="frontUpload" class="upload-label">
+        <div v-loading="loading" class="upload-text">
           <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳身分證<span class="bluesc">正面</span></div>
-        </label>
-      </div>
+        </div>
+      </label>
       <div v-loading="loading" v-else class="image-preview">
         <img
           :src="frontImage"
@@ -36,12 +36,12 @@
         accept="image/*"
         @change="handleFileChange('idcardb')"
       />
-      <div v-loading="loading1" v-if="!backImage" class="upload-text">
-        <label for="backUpload" class="upload-label">
+      <label v-if="!backImage" for="backUpload" class="upload-label">
+        <div v-loading="loading1" class="upload-text">
           <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳身分證<span class="bluesc">反面</span></div>
-        </label>
-      </div>
+        </div>
+      </label>
       <div v-loading="loading1" v-else class="image-preview">
         <img
           :src="backImage"
@@ -84,50 +84,73 @@ const uploadFile = async (
 
 const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
   const input = type === 'idcardf' ? frontInput.value : backInput.value
-  const file = input?.files ? input.files![0] : null
+  const file = input?.files ? input.files[0] : null
 
   if (file && file.type.startsWith('image/')) {
+    // 立即开始转换状态
+    if (type === 'idcardf') {
+      loading.value = true
+    } else if (type === 'idcardb') {
+      loading1.value = true
+    }
+
     const reader = new FileReader()
+    const formData = new FormData()
+
+    formData.append(`${props.id}_${type}`, file)
+
     reader.onload = () => {
       if (type === 'idcardf') {
         frontImage.value = reader.result as string
-      } else {
+      } else if (type === 'idcardb') {
         backImage.value = reader.result as string
       }
     }
+
     reader.onerror = () => {
       emit('update', { type, status: 'error' })
       ElMessage.error('圖片讀取失敗')
     }
-    // 上传开始
-    loading.value = true
-    const formData = new FormData()
-    // todo abcdefg改成random16DigitNumber
-    // 身份证正面 idcardf 背面 idcardb pdf pdf 视频 video
-    console.log('props.id', props.id)
 
-    formData.append(`${props.id}_idcardf`, file)
     try {
-      // todo http://192.168.10.229:4321/app去掉，拦截器的地方把VITE_API_BASE_URL配置进去
-
       const response = await uploadImage(formData, 'multipart/form-data')
       if (response.data.code === 0) {
         emit('update', { type, status: 'success' })
         ElMessage.success('圖片上傳成功')
+
+        // 上传成功后结束转圈圈
+        if (type === 'idcardf') {
+          loading.value = false
+        } else if (type === 'idcardb') {
+          loading1.value = false
+        }
+
         reader.readAsDataURL(file)
       } else {
         emit('update', { type, status: 'error' })
         ElMessage.error('圖片上傳失敗')
+
+        // 上传失败也要结束转圈圈
+        if (type === 'idcardf') {
+          loading.value = false
+        } else if (type === 'idcardb') {
+          loading1.value = false
+        }
       }
     } catch (error) {
       emit('update', { type, status: 'error' })
       ElMessage.error('圖片上傳失敗')
+
+      // 异常情况也要结束转圈圈
+      if (type === 'idcardf') {
+        loading.value = false
+      } else if (type === 'idcardb') {
+        loading1.value = false
+      }
     }
   } else {
     ElMessage.error('請選擇圖片文件')
   }
-  loading.value = false
-  //上传结束
 }
 
 const removeImage = (type: 'idcardf' | 'idcardb') => {
@@ -180,6 +203,8 @@ const handleFileClick = (type: 'idcardf' | 'idcardb') => {
 }
 
 .upload-label {
+  width: 100%; /* 调整上传区域宽度 */
+  height: 200px; /* 调整上传区域高度 */
   font-size: 16px;
   cursor: pointer;
   display: flex;

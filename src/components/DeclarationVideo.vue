@@ -1,32 +1,28 @@
 <template>
-  <div class="DeclarationVideo">
-    <div
-      v-loading="loading"
-      class="upload-container"
-      @click="DeclarationVideoClick('DeclarationVideo')"
+  <div v-loading="loading" class="upload-container">
+    <input
+      ref="DeclarationVideoInput"
+      id="DeclarationVideoUpload"
+      type="file"
+      class="upload-input"
+      accept="video/*"
+      @change="DeclarationVideoChange('DeclarationVideo')"
+    />
+    <label
+      v-if="!DeclarationVideoVideo"
+      for="DeclarationVideoUpload"
+      class="upload-label"
     >
-      <input
-        ref="DeclarationVideoInput"
-        id="DeclarationVideoUpload"
-        type="file"
-        class="upload-input"
-        accept="video/*"
-        @change="DeclarationVideoChange('DeclarationVideo')"
-      />
-      <div v-if="!DeclarationVideoVideo" class="upload-text">
-        <label for="DeclarationVideoUpload" class="upload-label">
+      <div class="DeclarationVideo">
+        <div class="upload-text">
           <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳聲明影片</div>
-        </label>
+        </div>
       </div>
-      <div v-loading="loading" v-else class="video-preview">
-        <video
-          :src="DeclarationVideoVideo"
-          controls
-          @click.stop="DeclarationVideoClick('DeclarationVideo')"
-        ></video>
-        <button @click.stop="removeVideo('DeclarationVideo')">移除</button>
-      </div>
+    </label>
+    <div v-loading="loading" v-else class="video-preview">
+      <video :src="DeclarationVideoVideo" controls></video>
+      <button @click="removeVideo('DeclarationVideo')">移除</button>
     </div>
   </div>
 </template>
@@ -49,7 +45,7 @@ const DeclarationVideoInput = ref<HTMLInputElement | null>(null)
 const DeclarationVideoVideo = ref<string | null>(null)
 
 const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
-  loading.value = true
+  // loading.value = true
   const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
   const file = input?.files ? input.files[0] : null
 
@@ -72,7 +68,7 @@ const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
       ElMessage.error('請選擇視訊文件')
       input!.value = '' // 清空输入以防止再次选择相同文件
     }
-    loading.value = false
+    // loading.value = false
   }
 }
 
@@ -123,6 +119,8 @@ const DeclarationVideoClick = (type: 'DeclarationVideo') => {
 }
 
 .upload-label {
+  width: 100%;
+  height: 200px;
   font-size: 16px;
   cursor: pointer;
   display: flex;
