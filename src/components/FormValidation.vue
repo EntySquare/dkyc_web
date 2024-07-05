@@ -256,8 +256,9 @@ interface RuleFormRequest {
   mail_address: string // 通讯地址
   amount: number // 金额
   buy_or_sell: number // 买/卖 (1-买, 2-卖)
+
   funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
-  UseOfExpensesValue: number // 委托买费用途 (按实际情况处理)
+  UserFor: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
   wallet_address: string // 接收方钱包地址
   political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
 }
@@ -285,7 +286,7 @@ const formRequest = reactive<RuleFormRequest>({
   amount: Number(ruleForm.Amount),
   buy_or_sell: ruleForm.SourceOfFundsValue == '買' ? 1 : 2,
   funding_source: Number(ruleForm.UseOfExpensesValue),
-  UseOfExpensesValue: Number(ruleForm.officialValue),
+  UserFor: Number(ruleForm.officialValue),
   wallet_address: ruleForm.MailingAddress,
   political: Number(ruleForm.WalletAddress)
 })
@@ -404,7 +405,9 @@ const handleSubmit = async (
     } else if (action === 'sign') {
       // 签名逻辑
       console.log('View and sign operation.', ruleForm)
-      await FormUpload(form)
+      const res = await FormUpload(formRequest)
+      console.log('res from data ', res)
+
       formStore.setFormData(ruleForm)
       router.push({
         path: '/viewAndSign'
