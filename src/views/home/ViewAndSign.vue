@@ -272,6 +272,17 @@ const UseOfExpensesOptionsfun = () => {
 
 // 生成 PDF 并上传到服务器
 const generatePDF = async () => {
+  //判断是否签字
+  if (!signatureImage.value || !signatureImage1.value) {
+    ElMessage.error('請簽名')
+    return
+  }
+  // 判断是否勾选
+
+  if (!checked.value) {
+    ElMessage.error('請閱讀並同意聲明書')
+    return
+  }
   const pdfContent = document.getElementById('pdf-content')
   const pdfContent1 = document.getElementById('pdf-content1')
   console.log('pdfContent', pdfContent)
@@ -281,7 +292,6 @@ const generatePDF = async () => {
     try {
       // 开始加载动画
       loading.value = true
-
       // 使用 html2canvas 将第一页的内容转换为 Canvas
       const canvas1 = await html2canvas(pdfContent, {
         scale: 4, // 放大倍数，根据需要调整
@@ -303,7 +313,7 @@ const generatePDF = async () => {
       const pdf = new jsPDF({
         orientation: 'p', // 页面方向：'p' 纵向，'l' 横向
         unit: 'mm', // 单位：'mm' 毫米，'pt' 点，'in' 英寸
-        format: [300, 600] // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
+        format: [300, 1000] // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
       })
 
       // 获取 PDF 页面的宽度和高度
@@ -317,7 +327,7 @@ const generatePDF = async () => {
         10,
         10,
         pdfWidth - 20,
-        pdfHeight - 30
+        pdfHeight - 15
       )
 
       pdf.setFontSize(12)
@@ -333,7 +343,7 @@ const generatePDF = async () => {
         10,
         10,
         pdfWidth - 20,
-        pdfHeight - 30
+        pdfHeight - 100
       )
       // 提供下载预览功能
       pdf.save('document.pdf')

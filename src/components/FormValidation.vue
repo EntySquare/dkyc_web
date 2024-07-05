@@ -266,16 +266,16 @@ interface RuleFormRequest {
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
   hush: random16DigitNumber.value,
-  name: '',
-  DocumentNumber: '',
-  Mobile: '',
-  Business: '',
-  Amount: '',
-  SourceOfFundsValue: '',
-  UseOfExpensesValue: '',
-  officialValue: '',
-  MailingAddress: '',
-  WalletAddress: ''
+  name: form.name || '',
+  DocumentNumber: form.DocumentNumber || '',
+  Mobile: form.Mobile || '',
+  Business: form.Business || '',
+  Amount: form.Amount || '',
+  SourceOfFundsValue: form.SourceOfFundsValue || '',
+  UseOfExpensesValue: form.UseOfExpensesValue || '',
+  officialValue: form.officialValue || '',
+  MailingAddress: form.MailingAddress || '',
+  WalletAddress: form.WalletAddress || ''
 })
 const formRequest = reactive<RuleFormRequest>({
   hush: ruleForm.hush,
@@ -406,7 +406,7 @@ const handleSubmit = async (
       // 签名逻辑
       console.log('View and sign operation.', ruleForm)
       const res = await FormUpload(formRequest)
-      console.log('res from data ', res)
+      console.log('res from data ', res.data)
 
       formStore.setFormData(ruleForm)
       router.push({

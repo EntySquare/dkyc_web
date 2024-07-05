@@ -60,6 +60,8 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import axios from 'axios'
 import { uploadImage } from '@/api/upload'
+import useImageStore from '@/store/modules/imageStores'
+const imageStore = useImageStore()
 
 interface UpdateEvent {
   type: 'idcardf' | 'idcardb'
@@ -74,13 +76,8 @@ const emit = defineEmits<{
 
 const frontInput = ref<HTMLInputElement | null>(null)
 const backInput = ref<HTMLInputElement | null>(null)
-const frontImage = ref<string | null>(null)
-const backImage = ref<string | null>(null)
-
-const uploadFile = async (
-  file: File,
-  type: 'idcardf' | 'idcardb' | 'pdf' | 'video'
-) => {}
+const frontImage = ref(imageStore.frontImage) || ref<string>('')
+const backImage = ref(imageStore.backImage) || ref<string>('')
 
 const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
   // 根据 type 确定使用哪个输入元素
@@ -112,8 +109,14 @@ const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
       // 根据 type 将读取的文件内容存入相应的 ref 中
       if (type === 'idcardf') {
         frontImage.value = reader.result as string
+        imageStore.setFrontImage(reader.result as string)
+        console.log('frontImage.value', frontImage.value)
+        console.log('imageStore.frontImage', imageStore.frontImage)
       } else if (type === 'idcardb') {
         backImage.value = reader.result as string
+        imageStore.setBackImage(reader.result as string)
+        console.log('backImage.value', backImage.value)
+        console.log('imageStore.backImage', imageStore.backImage)
       }
     }
 
@@ -161,10 +164,10 @@ const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
 
 const removeImage = (type: 'idcardf' | 'idcardb') => {
   if (type === 'idcardf') {
-    frontImage.value = null
+    frontImage.value = ''
     frontInput.value!.value = '' // 清空input的值
   } else {
-    backImage.value = null
+    backImage.value = ''
     backInput.value!.value = '' // 清空input的值
   }
   emit('update', { type, status: 'removed' })
