@@ -5,7 +5,6 @@ let ffmpeg = {};
 ffmpeg.squeezVideo = async function (file, filename, filetype, msg) {
     console.log('file', file);
     console.log('filename', filename);
-    console.log('filetype', filetype);
 
     // 分辨率
     const resolution = `1280x720`;
@@ -30,20 +29,19 @@ ffmpeg.squeezVideo = async function (file, filename, filetype, msg) {
     ffmpegObj.FS('writeFile', name, await fetchFile(file));
     // await ffmpeg.run('-i', name, '-b', '2000000', '-fs', '4194304', '-preset medium', 'superfast', 'output.mp4')
     // 开始压缩视频
-    const compressedFileSize = this.computeFileSize(file);
-    console.log("After compression,this file size is " + compressedFileSize + " Bytes.");
-    await ffmpegObj.run('-i', name, '-b', '2000000', '-crf', '18', '-fs', compressedFileSize, '-s', resolution, 'output.mp4');
+    // const compressedFileSize = this.computeFileSize(file).toString();
+    // console.log("After compression,this file size is " + compressedFileSize + " Bytes.");
+    await ffmpegObj.run('-i', name, '-b', '2000000', '-crf', '22', 'output.mp4');
     // msg = '压缩完成'
     // 压缩所完成，   读文件  压缩后的文件名称为 output.mp4
     const data = await ffmpegObj.FS('readFile', 'output.mp4');
 
     // 转换bolb类型
-    const blob = new Blob([data], {type: 'text/plain;charset=utf-8'});
-
-    return new Promise((resolve, reject) => {
-        const file = new window.File([blob], filename, {type: filetype});
-        resolve(file);
-    })
+    return new Blob([data], {type: 'text/plain;charset=utf-8'})
+    // return new Promise((resolve, reject) => {
+    //     const file = new window.File([blob], filename, {type: filetype});
+    //     resolve(file);
+    // })
 }
 
 ffmpeg.computeFileSize = function (file) {

@@ -67,7 +67,8 @@ const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
       //   return
       // }
       // reader.readAsDataURL(file)
-      const videoBlob = await uploadCompressVideo(file) as Blob
+      const videoBlob = await uploadCompressVideo(file)
+      // todo 加一个进度条
 
       const formData = new FormData()
       // todo 文件名修改
@@ -92,8 +93,9 @@ const uploadCompressVideo = async (file) => {
   if (file) {
     let filename = file.name;
     let filetype = file.type;
+    console.log("msg1:",videoMsg)
 
-    return ffmpeg.squeezVideo(file, filename, filetype, videoMsg.value);
+    return await ffmpeg.squeezVideo(file, filename, filetype, videoMsg.value);
   }
 }
 
