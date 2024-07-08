@@ -1,26 +1,26 @@
 <template>
   <div v-loading="loading" class="upload-container">
     <input
-      ref="DeclarationVideoInput"
-      id="DeclarationVideoUpload"
-      type="file"
-      class="upload-input"
-      accept="video/*"
-      @change="DeclarationVideoChange('DeclarationVideo')"
+        ref="DeclarationVideoInput"
+        id="DeclarationVideoUpload"
+        type="file"
+        class="upload-input"
+        accept="video/*"
+        @change="DeclarationVideoChange('DeclarationVideo')"
     />
     <label
-      v-if="!DeclarationVideoVideo"
-      for="DeclarationVideoUpload"
-      class="upload-label"
+        v-if="!DeclarationVideoVideo"
+        for="DeclarationVideoUpload"
+        class="upload-label"
     >
       <div class="DeclarationVideo">
         <div class="upload-text">
-          <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
+          <div><img src="@/assets/images/upload-cloud.svg" alt=""/></div>
           <div>上傳聲明影片</div>
         </div>
       </div>
     </label>
-    <div v-loading="loading" v-else class="video-preview">
+    <div id="DeclarationVideoVideo" v-loading="loading" v-else class="video-preview">
       <video :src="DeclarationVideoVideo" controls></video>
       <button @click="removeVideo('DeclarationVideo')">移除</button>
     </div>
@@ -28,9 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import {ref} from 'vue'
+import {ElMessage} from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
+import ffmpeg from "@/utils/ffmpeg.js"
+import {uploadImage} from "@/api/upload";
 
 interface UpdateEvent {
   type: 'DeclarationVideo' | 'back'
@@ -43,27 +45,41 @@ const emit = defineEmits<{
 const loading = ref(false)
 const DeclarationVideoInput = ref<HTMLInputElement | null>(null)
 const DeclarationVideoVideo = ref<string | null>(null)
-
-const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
+const videoMsg = ref("")
+const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
   // loading.value = true
   const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
   const file = input?.files ? input.files[0] : null
 
   if (file) {
     if (file.type.startsWith('video/')) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (type === 'DeclarationVideo') {
-          DeclarationVideoVideo.value = reader.result as string
-        }
-        emit('update', { type, status: 'success' })
-        ElMessage.success('影片上傳成功')
-      }
-      reader.onerror = () => {
-        emit('update', { type, status: 'error' })
-        ElMessage.error('影片上傳失敗')
-      }
-      reader.readAsDataURL(file)
+      // const reader = new FileReader()
+      // reader.onload = () => {
+      //   if (type === 'DeclarationVideo') {
+      //     DeclarationVideoVideo.value = reader.result as string
+      //   }
+      //   emit('update', {type, status: 'success'})
+      //   ElMessage.success('影片上傳成功')
+      // }
+      // reader.onerror = () => {
+      //   emit('update', {type, status: 'error'})
+      //   ElMessage.error('影片上傳失敗')
+      //   return
+      // }
+      // reader.readAsDataURL(file)
+      const videoBlob = await uploadCompressVideo(file) as Blob
+
+      const formData = new FormData()
+      // todo 文件名修改
+      formData.append(`test_video`, videoBlob)
+
+      const response = await uploadImage(formData, 'multipart/form-data')
+
+      // 上传成功后的处理
+      // todo 页面预览加载
+      console.log('影片上傳成功', response.data)
+      ElMessage.success('影片上傳成功')
+
     } else {
       ElMessage.error('請選擇視訊文件')
       input!.value = '' // 清空输入以防止再次选择相同文件
@@ -72,12 +88,21 @@ const DeclarationVideoChange = (type: 'DeclarationVideo' | 'back') => {
   }
 }
 
+const uploadCompressVideo = async (file) => {
+  if (file) {
+    let filename = file.name;
+    let filetype = file.type;
+
+    return ffmpeg.squeezVideo(file, filename, filetype, videoMsg.value);
+  }
+}
+
 const removeVideo = (type: 'DeclarationVideo') => {
   if (type === 'DeclarationVideo') {
     DeclarationVideoVideo.value = null
     DeclarationVideoInput.value!.value = '' // 清空input的值
   }
-  emit('update', { type, status: 'removed' })
+  emit('update', {type, status: 'removed'})
 }
 
 const DeclarationVideoClick = (type: 'DeclarationVideo') => {
