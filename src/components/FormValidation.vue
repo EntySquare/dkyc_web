@@ -7,12 +7,17 @@
     label-position="top"
   >
     <el-form-item label="1. 姓名" prop="name">
-      <el-input clearable v-model="ruleForm.name" placeholder="輸入姓名" />
+      <el-input
+        clearable
+        v-model.trim="ruleForm.name"
+        placeholder="輸入姓名"
+        @input="handleInputChange('name', $event)"
+      />
     </el-form-item>
     <el-form-item label="2. 身份證號碼" prop="DocumentNumber">
       <el-input
         clearable
-        v-model="ruleForm.DocumentNumber"
+        v-model.trim="ruleForm.DocumentNumber"
         placeholder="輸入您的身份證號碼"
       />
     </el-form-item>
@@ -22,13 +27,13 @@
     <el-form-item label="4. 通訊地址" prop="MailingAddress">
       <el-input
         clearable
-        v-model="ruleForm.MailingAddress"
+        v-model.trim="ruleForm.MailingAddress"
         placeholder="輸入通訊地址"
       />
     </el-form-item>
     <el-form-item label="5. 買/賣" prop="Business">
       <el-select
-        v-model="ruleForm.Business"
+        v-model.trim="ruleForm.Business"
         placeholder="選擇買/賣"
         size="large"
         style="width: 100%"
@@ -42,11 +47,15 @@
       </el-select>
     </el-form-item>
     <el-form-item label="6. 金額" prop="Amount">
-      <el-input clearable v-model="ruleForm.Amount" placeholder="輸入金額" />
+      <el-input
+        clearable
+        v-model.trim="ruleForm.Amount"
+        placeholder="輸入金額"
+      />
     </el-form-item>
     <el-form-item label="7. 資金來源" prop="SourceOfFundsValue">
       <el-select
-        v-model="ruleForm.SourceOfFundsValue"
+        v-model.trim="ruleForm.SourceOfFundsValue"
         placeholder="選擇資金來源"
         size="large"
         style="width: 100%"
@@ -61,7 +70,7 @@
     </el-form-item>
     <el-form-item label="8. 委託買費用途" prop="UseOfExpensesValue">
       <el-select
-        v-model="ruleForm.UseOfExpensesValue"
+        v-model.trim="ruleForm.UseOfExpensesValue"
         placeholder="選擇委託買費用途"
         size="large"
         style="width: 100%"
@@ -77,7 +86,7 @@
     <el-form-item label="9. 接收者錢包位址（選填)" prop="WalletAddress">
       <el-input
         clearable
-        v-model="ruleForm.WalletAddress"
+        v-model.trim="ruleForm.WalletAddress"
         placeholder="輸入接收者錢包位址（選填)"
       />
     </el-form-item>
@@ -86,7 +95,7 @@
       prop="officialValue"
     >
       <el-select
-        v-model="ruleForm.officialValue"
+        v-model.trim="ruleForm.officialValue"
         placeholder="選擇"
         size="large"
         style="width: 100%"
@@ -194,6 +203,12 @@ interface UpdateEvent {
   status: 'success' | 'error' | 'removed'
 }
 
+const handleInputChange = (field: keyof RuleForm, event: InputEvent) => {
+  const value = (event.target as HTMLInputElement).value
+  // 去除空格
+  ruleForm[field] = value.replace(/\s+/g, '')
+}
+
 const statusValue = useImageStore()
 const handleUpdate = ({ type, status }: UpdateEvent) => {
   if (type === 'idcardf') {
@@ -250,7 +265,7 @@ interface RuleForm {
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
   hash: random16DigitNumber.value,
-  name: form.name || '',
+  name: form.name.trim() || '',
   DocumentNumber: form.DocumentNumber || '',
   Mobile: form.Mobile || '',
   Business: form.Business || '',
