@@ -1,12 +1,12 @@
 <template>
   <div class="home_view">
     <HandSignature
-        v-model:dialogVisible="dialogVisible"
-        @signatureSubmitted="handleSignatureSubmitted"
+      v-model:dialogVisible="dialogVisible"
+      @signatureSubmitted="handleSignatureSubmitted"
     />
     <HandSignature
-        v-model:dialogVisible="dialogVisible1"
-        @signatureSubmitted="handleSignatureSubmitted1"
+      v-model:dialogVisible="dialogVisible1"
+      @signatureSubmitted="handleSignatureSubmitted1"
     />
     <div class="TradingDisclaime">
       <!-- pdf第一页开始 -->
@@ -73,17 +73,17 @@
           </p>
           <div class="ConsentClause">
             <el-checkbox
-                v-model="checked"
-                label="我本人已閱請以上條款 : "
-                size="large"
+              v-model="checked"
+              label="我本人已閱請以上條款 : "
+              size="large"
             />
             <div class="Q_signature" @click="dialogVisible = true">
               <div v-if="!signatureImage">點擊簽名</div>
               <div v-if="signatureImage" class="signature-display">
                 <img
-                    :src="signatureImage"
-                    alt="签名图片"
-                    class="signature-img"
+                  :src="signatureImage"
+                  alt="签名图片"
+                  class="signature-img"
                 />
               </div>
             </div>
@@ -99,8 +99,8 @@
 
       <!-- pdf第二页开始 -->
       <div
-          style="display: flex; flex-direction: column; gap: 15px"
-          id="pdf-content1"
+        style="display: flex; flex-direction: column; gap: 15px"
+        id="pdf-content1"
       >
         <div class="TradingDisclaimeTwo">
           <p class="F-400-16">
@@ -121,14 +121,14 @@
           <p class="F-400-16">
             13. 接收方錢包地址:
             <span class="texs">{{
-                form.WalletAddress ? form.WalletAddress : '無'
-              }}</span>
+              form.WalletAddress ? form.WalletAddress : '無'
+            }}</span>
           </p>
           <p class="F-400-16">
             14. 是否有五級等以內為重要政治性職務人士:
             <span class="texs">{{
-                form.officialValue == '1' ? '是' : '否'
-              }}</span>
+              form.officialValue == '1' ? '是' : '否'
+            }}</span>
           </p>
         </div>
         <div class="SignatureIDCard">
@@ -141,7 +141,7 @@
           <div class="CardTitle">特此聲明</div>
           <div class="text_content1">
             <span class="overbold"
-            >本人
+              >本人
               <span class="texs"> {{ form.name }} </span> 買/賣(虚擬通貨貨幣)
               <span class="texs">{{ form.Business }} </span> 相當於新臺幣
               <span class="texs">{{ form.Amount }}</span> 元之虚擬通貨。</span
@@ -157,9 +157,9 @@
             <div class="PleaseSign" v-if="!signatureImage1">請簽名</div>
             <div v-if="signatureImage1" class="PleaseSignImg">
               <img
-                  :src="signatureImage1"
-                  alt="签名图片"
-                  class="PleaseSignImg-img"
+                :src="signatureImage1"
+                alt="签名图片"
+                class="PleaseSignImg-img"
               />
             </div>
           </div>
@@ -175,9 +175,9 @@
 
     <div style="width: 100%; display: flex; justify-content: end">
       <div
-          v-loading.fullscreen.lock="loading"
-          class="SubmissionOfDeclaration"
-          @click="generatePDF"
+        v-loading.fullscreen.lock="loading"
+        class="SubmissionOfDeclaration"
+        @click="generatePDF"
       >
         提交聲明
       </div>
@@ -188,11 +188,11 @@
 <script setup lang="ts">
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
-import {onMounted, reactive, ref} from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import {FormUpload, uploadImage} from '@/api/upload'
-import {Action, ElMessage, ElMessageBox} from 'element-plus'
+import { FormUpload, uploadImage } from '@/api/upload'
+import { Action, ElMessage, ElMessageBox } from 'element-plus'
 import useImageStore from '@/store/modules/imageStores'
 
 const loading = ref(false)
@@ -266,7 +266,7 @@ const getCurrentDate = (): {
   const month = String(today.getMonth() + 1).padStart(2, '0') // 月份从0开始，所以需要加1
   const day = String(today.getDate()).padStart(2, '0')
 
-  return {year, month, day}
+  return { year, month, day }
 }
 const SourceOfFundsValue = ref()
 const SourceOfFundsValuefun = () => {
@@ -316,8 +316,8 @@ const generatePDF = async () => {
   const confirmAction = await ElMessageBox.confirm('是否確認提交數據', '', {
     // if you want to disable its autofocus
     // autofocus: false,
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Cancel'
+    confirmButtonText: '是',
+    cancelButtonText: '取消'
   })
 
   if (confirmAction !== 'confirm') {
@@ -374,12 +374,12 @@ const generatePDF = async () => {
 
       // 添加第一页的内容
       pdf.addImage(
-          canvas1.toDataURL('image/png'),
-          'PNG',
-          10,
-          10,
-          pdfWidth - 20,
-          pdfHeight - 15
+        canvas1.toDataURL('image/png'),
+        'PNG',
+        10,
+        10,
+        pdfWidth - 20,
+        pdfHeight - 15
       )
 
       pdf.setFontSize(12)
@@ -389,12 +389,12 @@ const generatePDF = async () => {
 
       // 添加第二页的内容（假设已经有第二页的 Canvas 对象）
       pdf.addImage(
-          canvas2.toDataURL('image/png'),
-          'PNG',
-          10,
-          10,
-          pdfWidth - 20,
-          pdfHeight - 100
+        canvas2.toDataURL('image/png'),
+        'PNG',
+        10,
+        10,
+        pdfWidth - 20,
+        pdfHeight - 100
       )
       // 提供下载预览功能
       pdf.save('document.pdf')
@@ -415,7 +415,7 @@ const generatePDF = async () => {
       //发请求
       const res = await FormUpload(formRequest)
       if (res.data.code !== 0) {
-        if (res.data.json.msg_en === "error transaction") {
+        if (res.data.json.msg_en === 'error transaction') {
           ElMessage.error('已提交過表單')
           useFormStore().setFormData(form)
           useImageStore().clearImages()
