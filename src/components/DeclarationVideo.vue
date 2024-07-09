@@ -39,6 +39,7 @@ interface UpdateEvent {
   status: 'success' | 'error' | 'removed'
 }
 
+const props = defineProps<{ id: string }>()
 const emit = defineEmits<{
   (e: 'update', payload: UpdateEvent): void
 }>()
@@ -53,34 +54,37 @@ const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
 
   if (file) {
     if (file.type.startsWith('video/')) {
-      // const reader = new FileReader()
-      // reader.onload = () => {
-      //   if (type === 'DeclarationVideo') {
-      //     DeclarationVideoVideo.value = reader.result as string
-      //   }
-      //   emit('update', {type, status: 'success'})
-      //   ElMessage.success('影片上傳成功')
-      // }
-      // reader.onerror = () => {
-      //   emit('update', {type, status: 'error'})
-      //   ElMessage.error('影片上傳失敗')
-      //   return
-      // }
-      // reader.readAsDataURL(file)
-      const videoBlob = await uploadCompressVideo(file)
-      // todo 加一个进度条
+      loading.value = true
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (type === 'DeclarationVideo') {
+          DeclarationVideoVideo.value = reader.result as string
+        }
+      }
+      reader.onerror = () => {
+        emit('update', {type, status: 'error'})
+        ElMessage.error('影片讀取失敗')
+      }
 
-      const formData = new FormData()
-      // todo 文件名修改
-      formData.append(`test_video`, videoBlob)
-
-      const response = await uploadImage(formData, 'multipart/form-data')
-
-      // 上传成功后的处理
-      // todo 页面预览加载
-      console.log('影片上傳成功', response.data)
-      ElMessage.success('影片上傳成功')
-
+      try {
+        const videoBlob = await ffmpeg.squeezVideo(file, file.name, file.type, videoMsg.value) as Blob
+        const formData = new FormData()
+        formData.append(`${props.id}_video`, videoBlob)
+        const response = await uploadImage(formData, 'multipart/form-data')
+        if (response.data.code === 0) {
+          reader.readAsDataURL(file)
+          emit('update', {type, status: 'success'})
+          ElMessage.success('影片上傳成功')
+        } else {
+          emit('update', {type, status: 'error'})
+          ElMessage.error('影片上傳失敗')
+        }
+      } catch (error) {
+        emit('update', {type, status: 'error'})
+        ElMessage.error('影片上傳失敗')
+      } finally {
+        loading.value = false
+      }
     } else {
       ElMessage.error('請選擇視訊文件')
       input!.value = '' // 清空输入以防止再次选择相同文件
@@ -93,7 +97,7 @@ const uploadCompressVideo = async (file) => {
   if (file) {
     let filename = file.name;
     let filetype = file.type;
-    console.log("msg1:",videoMsg)
+    console.log("msg1:", videoMsg)
 
     return await ffmpeg.squeezVideo(file, filename, filetype, videoMsg.value);
   }

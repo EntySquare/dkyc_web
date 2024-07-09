@@ -148,7 +148,11 @@
           十倍之懲罰性違約金，並為此支出之律師費用。
         </div>
       </div>
-      <DeclarationVideo style="margin-top: 2px" @update="videoHandleUpdate" />
+      <DeclarationVideo
+          :id="random16DigitNumber"
+          style="margin-top: 2px"
+          @update="videoHandleUpdate"
+      />
     </el-form-item>
     <el-form-item class="item__content_bg" label="13.免责协议签名 ">
       <div class="DisclaimerAgreement">
