@@ -1,12 +1,12 @@
 <template>
   <div class="home_view">
     <HandSignature
-      v-model:dialogVisible="dialogVisible"
-      @signatureSubmitted="handleSignatureSubmitted"
+        v-model:dialogVisible="dialogVisible"
+        @signatureSubmitted="handleSignatureSubmitted"
     />
     <HandSignature
-      v-model:dialogVisible="dialogVisible1"
-      @signatureSubmitted="handleSignatureSubmitted1"
+        v-model:dialogVisible="dialogVisible1"
+        @signatureSubmitted="handleSignatureSubmitted1"
     />
     <div class="TradingDisclaime">
       <!-- pdf第一页开始 -->
@@ -73,17 +73,17 @@
           </p>
           <div class="ConsentClause">
             <el-checkbox
-              v-model="checked"
-              label="我本人已閱請以上條款 : "
-              size="large"
+                v-model="checked"
+                label="我本人已閱請以上條款 : "
+                size="large"
             />
             <div class="Q_signature" @click="dialogVisible = true">
               <div v-if="!signatureImage">點擊簽名</div>
               <div v-if="signatureImage" class="signature-display">
                 <img
-                  :src="signatureImage"
-                  alt="签名图片"
-                  class="signature-img"
+                    :src="signatureImage"
+                    alt="签名图片"
+                    class="signature-img"
                 />
               </div>
             </div>
@@ -99,8 +99,8 @@
 
       <!-- pdf第二页开始 -->
       <div
-        style="display: flex; flex-direction: column; gap: 15px"
-        id="pdf-content1"
+          style="display: flex; flex-direction: column; gap: 15px"
+          id="pdf-content1"
       >
         <div class="TradingDisclaimeTwo">
           <p class="F-400-16">
@@ -121,14 +121,14 @@
           <p class="F-400-16">
             13. 接收方錢包地址:
             <span class="texs">{{
-              form.WalletAddress ? form.WalletAddress : '無'
-            }}</span>
+                form.WalletAddress ? form.WalletAddress : '無'
+              }}</span>
           </p>
           <p class="F-400-16">
             14. 是否有五級等以內為重要政治性職務人士:
             <span class="texs">{{
-              form.officialValue == '1' ? '是' : '否'
-            }}</span>
+                form.officialValue == '1' ? '是' : '否'
+              }}</span>
           </p>
         </div>
         <div class="SignatureIDCard">
@@ -141,7 +141,7 @@
           <div class="CardTitle">特此聲明</div>
           <div class="text_content1">
             <span class="overbold"
-              >本人
+            >本人
               <span class="texs"> {{ form.name }} </span> 買/賣(虚擬通貨貨幣)
               <span class="texs">{{ form.Business }} </span> 相當於新臺幣
               <span class="texs">{{ form.Amount }}</span> 元之虚擬通貨。</span
@@ -157,9 +157,9 @@
             <div class="PleaseSign" v-if="!signatureImage1">請簽名</div>
             <div v-if="signatureImage1" class="PleaseSignImg">
               <img
-                :src="signatureImage1"
-                alt="签名图片"
-                class="PleaseSignImg-img"
+                  :src="signatureImage1"
+                  alt="签名图片"
+                  class="PleaseSignImg-img"
               />
             </div>
           </div>
@@ -175,9 +175,9 @@
 
     <div style="width: 100%; display: flex; justify-content: end">
       <div
-        v-loading.fullscreen.lock="loading"
-        class="SubmissionOfDeclaration"
-        @click="generatePDF"
+          v-loading.fullscreen.lock="loading"
+          class="SubmissionOfDeclaration"
+          @click="generatePDF"
       >
         提交聲明
       </div>
@@ -188,11 +188,11 @@
 <script setup lang="ts">
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
-import { onMounted, reactive, ref } from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { FormUpload, uploadImage } from '@/api/upload'
-import { Action, ElMessage, ElMessageBox } from 'element-plus'
+import {FormUpload, uploadImage} from '@/api/upload'
+import {Action, ElMessage, ElMessageBox} from 'element-plus'
 import useImageStore from '@/store/modules/imageStores'
 
 const loading = ref(false)
@@ -205,7 +205,7 @@ const formStore = useFormStore()
 const form = formStore.form
 
 interface RuleFormRequest {
-  hush: string // 隐藏字段
+  hash: string // 隐藏字段
   name: string // 姓名
   id_card: string // 身份证号码
   phone: string // 手机号
@@ -214,12 +214,13 @@ interface RuleFormRequest {
   buy_or_sell: number // 买/卖 (1-买, 2-卖)
 
   funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
-  UserFor: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
+  user_for: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
   wallet_address: string // 接收方钱包地址
   political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
 }
+
 const formRequest = reactive<RuleFormRequest>({
-  hush: form.hush,
+  hash: form.hash,
   name: form.name,
   id_card: form.DocumentNumber,
   phone: form.Mobile,
@@ -227,7 +228,7 @@ const formRequest = reactive<RuleFormRequest>({
   amount: Number(form.Amount),
   buy_or_sell: form.SourceOfFundsValue == '買' ? 1 : 2,
   funding_source: Number(form.UseOfExpensesValue),
-  UserFor: Number(form.officialValue),
+  user_for: Number(form.officialValue),
   wallet_address: form.MailingAddress,
   political: Number(form.WalletAddress)
 })
@@ -265,7 +266,7 @@ const getCurrentDate = (): {
   const month = String(today.getMonth() + 1).padStart(2, '0') // 月份从0开始，所以需要加1
   const day = String(today.getDate()).padStart(2, '0')
 
-  return { year, month, day }
+  return {year, month, day}
 }
 const SourceOfFundsValue = ref()
 const SourceOfFundsValuefun = () => {
@@ -323,7 +324,7 @@ const generatePDF = async () => {
     return // 如果取消则退出函数
   }
   const form = {
-    hush: '',
+    hash: '',
     name: '',
     DocumentNumber: '',
     Mobile: '',
@@ -335,8 +336,6 @@ const generatePDF = async () => {
     MailingAddress: '',
     WalletAddress: ''
   }
-  //发请求
-  const res = await FormUpload(formRequest)
 
   const pdfContent = document.getElementById('pdf-content')
   const pdfContent1 = document.getElementById('pdf-content1')
@@ -375,12 +374,12 @@ const generatePDF = async () => {
 
       // 添加第一页的内容
       pdf.addImage(
-        canvas1.toDataURL('image/png'),
-        'PNG',
-        10,
-        10,
-        pdfWidth - 20,
-        pdfHeight - 15
+          canvas1.toDataURL('image/png'),
+          'PNG',
+          10,
+          10,
+          pdfWidth - 20,
+          pdfHeight - 15
       )
 
       pdf.setFontSize(12)
@@ -390,12 +389,12 @@ const generatePDF = async () => {
 
       // 添加第二页的内容（假设已经有第二页的 Canvas 对象）
       pdf.addImage(
-        canvas2.toDataURL('image/png'),
-        'PNG',
-        10,
-        10,
-        pdfWidth - 20,
-        pdfHeight - 100
+          canvas2.toDataURL('image/png'),
+          'PNG',
+          10,
+          10,
+          pdfWidth - 20,
+          pdfHeight - 100
       )
       // 提供下载预览功能
       pdf.save('document.pdf')
@@ -405,11 +404,28 @@ const generatePDF = async () => {
 
       // 创建 FormData 对象并添加 PDF 文件
       const formData = new FormData()
-      formData.append(`${form.hush}_pdf`, pdfBlob)
+      formData.append(`${formRequest.hash}_pdf`, pdfBlob)
 
       // 发送 POST 请求，将 PDF 上传到服务器
       const response = await uploadImage(formData, 'multipart/form-data')
-
+      if (response.data.code !== 0) {
+        ElMessage.error('文件上傳失敗')
+        return
+      }
+      //发请求
+      const res = await FormUpload(formRequest)
+      if (res.data.code !== 0) {
+        if (res.data.json.msg_en === "error transaction") {
+          ElMessage.error('已提交過表單')
+          useFormStore().setFormData(form)
+          useImageStore().clearImages()
+          useImageStore().clearDeclarationVideo()
+          //跳转回首页
+          router.push('/')
+        }
+        ElMessage.error('文件上傳失敗')
+        return
+      }
       // 上传成功后的处理
       ElMessage.success('文件上傳成功')
       // 结束加载动画
@@ -446,6 +462,7 @@ const generatePDF = async () => {
 .texs {
   border-bottom: 2px solid #000;
 }
+
 .SubmissionOfDeclaration {
   margin-top: 40px;
   width: 160px;
@@ -457,6 +474,7 @@ const generatePDF = async () => {
   background: red;
   color: #fff;
 }
+
 .home_view {
   padding: 20px 40px;
   display: flex;
@@ -466,39 +484,47 @@ const generatePDF = async () => {
   color: #000000;
   width: 100%;
   flex-shrink: 0;
+
   .TradingDisclaime {
     display: flex;
     flex-direction: column;
     gap: 20px;
     width: 97vw;
   }
+
   .TradingDisclaime_title {
     text-align: center;
     font-size: 22px;
     font-weight: 700;
     margin-bottom: 15px;
   }
+
   .F-500-000 {
     font-size: 18px;
     font-weight: 500;
   }
+
   .F-400-16 {
     font-size: 15px;
     line-height: 20px;
   }
+
   .TradingDisclaimeOne,
   .TradingDisclaimeTwo {
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
+
   .TradingDisclaimeTwo {
     margin-top: 50px;
   }
+
   .SignatureIDCard {
     margin-top: 20px;
     line-height: 24px;
   }
+
   .bigCard {
     width: 100%;
     border: 2px solid #000;
@@ -509,6 +535,7 @@ const generatePDF = async () => {
       font-weight: 700;
       margin-top: 13px;
     }
+
     .text_content1 {
       font-size: 15px;
       line-height: 22px;
@@ -516,14 +543,17 @@ const generatePDF = async () => {
       border-bottom: 2px solid #000;
       padding: 10px;
     }
+
     .overbold {
       font-weight: 500;
     }
+
     .SignatureArea {
       height: 250px;
       display: flex;
       justify-content: center;
       align-items: center;
+
       .PleaseSign {
         font-size: 35px;
         color: #0000006b;
@@ -552,6 +582,7 @@ const generatePDF = async () => {
   background: #fcd4d4;
   color: #0000008d;
 }
+
 .ConsentClause {
   margin-top: 20px;
   display: flex;
@@ -569,17 +600,20 @@ const generatePDF = async () => {
   font-weight: 400;
   gap: 2px;
 }
+
 :deep(.el-checkbox__label) {
   font-size: 16px !important;
   font-weight: 500 !important;
   color: black !important;
 }
+
 :deep(.el-checkbox__inner) {
   width: 16px !important;
   height: 16px !important;
   border: 1px solid #000 !important;
   background: #fff !important;
 }
+
 :deep(.el-checkbox__inner::after) {
   width: 4px !important;
   height: 8px !important;
@@ -587,6 +621,7 @@ const generatePDF = async () => {
   top: 1px !important;
   border-color: red !important;
 }
+
 .Q_signature {
   display: flex;
   width: 100px;

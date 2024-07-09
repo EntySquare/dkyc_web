@@ -172,7 +172,7 @@
       >
         儲存提交
       </el-button>
-    <el-button @click="resetForm(ruleFormRef)">重置</el-button> 
+    <el-button @click="resetForm(ruleFormRef)">重置</el-button>
     </el-form-item> -->
   </el-form>
 </template>
@@ -208,7 +208,7 @@ const form = formStore.form
 
 // 定义一个响应式变量，用于存储生成的随机18位数
 const random16DigitNumber =
-  form.hush !== '' ? ref(form.hush) : ref(generateRandom16DigitNumber())
+  form.hash !== '' ? ref(form.hash) : ref(generateRandom16DigitNumber())
 
 // 生成18位随机数的函数
 function generateRandom16DigitNumber(): string {
@@ -234,7 +234,7 @@ const videoHandleUpdate = (payload: { status: string }) => {
   }
 }
 interface RuleForm {
-  hush: string // 隐藏字段
+  hash: string // 隐藏字段
   name: string // 姓名
   DocumentNumber: string // 身份证号码
   Mobile: string // 手机号
@@ -249,7 +249,7 @@ interface RuleForm {
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
-  hush: random16DigitNumber.value,
+  hash: random16DigitNumber.value,
   name: form.name || '',
   DocumentNumber: form.DocumentNumber || '',
   Mobile: form.Mobile || '',

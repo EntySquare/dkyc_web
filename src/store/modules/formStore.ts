@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 interface RuleForm {
-    hush: string;
+    hash: string;
     name: string;
     DocumentNumber: string;
     Mobile: string;
@@ -17,7 +17,7 @@ interface RuleForm {
 const useFormStore = defineStore('formStore', {
     state: () => ({
         form: {
-            hush: '',
+            hash: '',
             name: '',
             DocumentNumber: '',
             Mobile: '',
