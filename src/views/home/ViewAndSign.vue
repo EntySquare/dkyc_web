@@ -214,7 +214,7 @@ interface RuleFormRequest {
   buy_or_sell: number // 买/卖 (1-买, 2-卖)
 
   funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
-  user_for: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
+  use_for: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
   wallet_address: string // 接收方钱包地址
   political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
 }
@@ -228,7 +228,7 @@ const formRequest = reactive<RuleFormRequest>({
   amount: Number(form.Amount),
   buy_or_sell: form.Business == '買' ? 1 : 2,
   funding_source: Number(form.SourceOfFundsValue),
-  user_for: Number(form.UseOfExpensesValue),
+  use_for: Number(form.UseOfExpensesValue),
   wallet_address: form.WalletAddress,
   political: Number(form.officialValue)
 })
