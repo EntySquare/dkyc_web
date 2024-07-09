@@ -224,13 +224,13 @@ const formRequest = reactive<RuleFormRequest>({
   name: form.name,
   id_card: form.DocumentNumber,
   phone: form.Mobile,
-  mail_address: form.Business,
+  mail_address: form.MailingAddress,
   amount: Number(form.Amount),
-  buy_or_sell: form.SourceOfFundsValue == '買' ? 1 : 2,
-  funding_source: Number(form.UseOfExpensesValue),
-  user_for: Number(form.officialValue),
-  wallet_address: form.MailingAddress,
-  political: Number(form.WalletAddress)
+  buy_or_sell: form.Business == '買' ? 1 : 2,
+  funding_source: Number(form.SourceOfFundsValue),
+  user_for: Number(form.UseOfExpensesValue),
+  wallet_address: form.WalletAddress,
+  political: Number(form.officialValue)
 })
 
 if (form.name == '') {
@@ -413,6 +413,8 @@ const generatePDF = async () => {
         return
       }
       //发请求
+      console.log('formRequest', formRequest)
+
       const res = await FormUpload(formRequest)
       if (res.data.code !== 0) {
         if (res.data.json.msg_en === 'error transaction') {
