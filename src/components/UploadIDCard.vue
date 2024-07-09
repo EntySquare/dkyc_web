@@ -103,33 +103,27 @@ const handleFileChange = async (type: 'idcardf' | 'idcardb') => {
 
     // 向 formData 添加文件，使用 `${props.id}_${type}` 作为表单字段名
     formData.append(`${props.id}_${type}`, file)
-
-    // 当 FileReader 加载完成时执行
-    reader.onload = () => {
-      // 根据 type 将读取的文件内容存入相应的 ref 中
-      if (type === 'idcardf') {
-        frontImage.value = reader.result as string
-        imageStore.setFrontImage(reader.result as string)
-        console.log('frontImage.value', frontImage.value)
-        console.log('imageStore.frontImage', imageStore.frontImage)
-      } else if (type === 'idcardb') {
-        backImage.value = reader.result as string
-        imageStore.setBackImage(reader.result as string)
-        console.log('backImage.value', backImage.value)
-        console.log('imageStore.backImage', imageStore.backImage)
-      }
-    }
-
-    // 当 FileReader 加载出错时执行
-    reader.onerror = () => {
-      // 发送错误更新事件和消息提示
-      emit('update', { type, status: 'error' })
-      ElMessage.error('圖片讀取失敗')
-    }
-
     try {
       // 调用上传图片的函数，并传递 FormData 对象
       const response = await uploadImage(formData, 'multipart/form-data')
+      // 当 FileReader 加载完成时执行
+      reader.onload = () => {
+        // 根据 type 将读取的文件内容存入相应的 ref 中
+        if (type === 'idcardf') {
+          frontImage.value = reader.result as string
+          imageStore.setFrontImage(reader.result as string)
+        } else if (type === 'idcardb') {
+          backImage.value = reader.result as string
+          imageStore.setBackImage(reader.result as string)
+        }
+      }
+
+      // 当 FileReader 加载出错时执行
+      reader.onerror = () => {
+        // 发送错误更新事件和消息提示
+        emit('update', { type, status: 'error' })
+        ElMessage.error('圖片讀取失敗')
+      }
 
       // 检查服务器响应
       if (response.data.code === 0) {

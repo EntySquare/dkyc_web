@@ -188,11 +188,12 @@
 <script setup lang="ts">
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { uploadImage } from '@/api/upload'
-import { ElMessage } from 'element-plus'
+import { FormUpload, uploadImage } from '@/api/upload'
+import { Action, ElMessage, ElMessageBox } from 'element-plus'
+import useImageStore from '@/store/modules/imageStores'
 
 const loading = ref(false)
 const dialogVisible = ref(false)
@@ -202,7 +203,34 @@ const signatureImage1 = ref<string | null>(null)
 
 const formStore = useFormStore()
 const form = formStore.form
-console.log('form', form)
+
+interface RuleFormRequest {
+  hush: string // 隐藏字段
+  name: string // 姓名
+  id_card: string // 身份证号码
+  phone: string // 手机号
+  mail_address: string // 通讯地址
+  amount: number // 金额
+  buy_or_sell: number // 买/卖 (1-买, 2-卖)
+
+  funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
+  UserFor: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
+  wallet_address: string // 接收方钱包地址
+  political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
+}
+const formRequest = reactive<RuleFormRequest>({
+  hush: form.hush,
+  name: form.name,
+  id_card: form.DocumentNumber,
+  phone: form.Mobile,
+  mail_address: form.Business,
+  amount: Number(form.Amount),
+  buy_or_sell: form.SourceOfFundsValue == '買' ? 1 : 2,
+  funding_source: Number(form.UseOfExpensesValue),
+  UserFor: Number(form.officialValue),
+  wallet_address: form.MailingAddress,
+  political: Number(form.WalletAddress)
+})
 
 if (form.name == '') {
   router.push('/')
@@ -283,10 +311,35 @@ const generatePDF = async () => {
     ElMessage.error('請閱讀並同意聲明書')
     return
   }
+
+  const confirmAction = await ElMessageBox.confirm('是否確認提交數據', '', {
+    // if you want to disable its autofocus
+    // autofocus: false,
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Cancel'
+  })
+
+  if (confirmAction !== 'confirm') {
+    return // 如果取消则退出函数
+  }
+  const form = {
+    hush: '',
+    name: '',
+    DocumentNumber: '',
+    Mobile: '',
+    Business: '',
+    Amount: '',
+    SourceOfFundsValue: '',
+    UseOfExpensesValue: '',
+    officialValue: '',
+    MailingAddress: '',
+    WalletAddress: ''
+  }
+  //发请求
+  const res = await FormUpload(formRequest)
+
   const pdfContent = document.getElementById('pdf-content')
   const pdfContent1 = document.getElementById('pdf-content1')
-  console.log('pdfContent', pdfContent)
-  console.log('pdfContent1', pdfContent1)
 
   if (pdfContent && pdfContent1) {
     try {
@@ -331,7 +384,6 @@ const generatePDF = async () => {
       )
 
       pdf.setFontSize(12)
-      console.log('canvas2', canvas2)
 
       // 添加新页
       pdf.addPage()
@@ -359,16 +411,23 @@ const generatePDF = async () => {
       const response = await uploadImage(formData, 'multipart/form-data')
 
       // 上传成功后的处理
-      console.log('文件上传成功', response.data)
-      ElMessage.success('文件上传成功')
+      ElMessage.success('文件上傳成功')
       // 结束加载动画
       loading.value = false
+      await ElMessageBox.alert('信息提交已完成，確認後將刷新頁面', '', {
+        // if you want to disable its autofocus
+
+        confirmButtonText: '確認'
+      })
+      useFormStore().setFormData(form)
+      useImageStore().clearImages()
+      useImageStore().clearDeclarationVideo()
       //跳转回首页
       router.push('/')
     } catch (error) {
       // 处理上传失败的情况
       console.error('文件上传失败', error)
-      ElMessage.error('文件上传失败')
+      ElMessage.error('文件上傳失敗')
       // 结束加载动画
       loading.value = false
     } finally {
@@ -378,7 +437,7 @@ const generatePDF = async () => {
   } else {
     // 结束加载动画
     loading.value = false
-    ElMessage.error('未找到 PDF 内容')
+    ElMessage.error('未找到 PDF 內容')
   }
 }
 </script>

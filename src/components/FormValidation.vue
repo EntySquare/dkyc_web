@@ -7,7 +7,6 @@
     label-position="top"
   >
     <el-form-item label="1. 姓名" prop="name">
-      <div style="color: black">{{ ruleForm.hush }}</div>
       <el-input clearable v-model="ruleForm.name" placeholder="輸入姓名" />
     </el-form-item>
     <el-form-item label="2. 身份證號碼" prop="DocumentNumber">
@@ -149,9 +148,9 @@
         </div>
       </div>
       <DeclarationVideo
-          :id="random16DigitNumber"
-          style="margin-top: 2px"
-          @update="videoHandleUpdate"
+        :id="random16DigitNumber"
+        style="margin-top: 2px"
+        @update="videoHandleUpdate"
       />
     </el-form-item>
     <el-form-item class="item__content_bg" label="13.免责协议签名 ">
@@ -165,7 +164,7 @@
         <!-- <ConvertJsonDataToPdf /> -->
       </div>
     </el-form-item>
-    <el-form-item>
+    <!-- <el-form-item>
       <el-button
         class="SaveCommit"
         type="primary"
@@ -173,8 +172,8 @@
       >
         儲存提交
       </el-button>
-      <!-- <el-button @click="resetForm(ruleFormRef)">重置</el-button> -->
-    </el-form-item>
+    <el-button @click="resetForm(ruleFormRef)">重置</el-button> 
+    </el-form-item> -->
   </el-form>
 </template>
 
@@ -188,20 +187,19 @@ import {
 } from 'element-plus'
 import router from '@/router'
 import useFormStore from '@/store/modules/formStore'
-import { FormUpload } from '@/api/upload'
+import useImageStore from '@/store/modules/imageStores'
+
 interface UpdateEvent {
   type: 'idcardf' | 'idcardb'
   status: 'success' | 'error' | 'removed'
 }
 
-const frontStatus = ref('未上传')
-const backStatus = ref('未上传')
-
+const statusValue = useImageStore()
 const handleUpdate = ({ type, status }: UpdateEvent) => {
   if (type === 'idcardf') {
-    frontStatus.value = status
+    statusValue.frontStatus = status
   } else if (type === 'idcardb') {
-    backStatus.value = status
+    statusValue.backStatus = status
   }
 }
 
@@ -221,15 +219,12 @@ function generateRandom16DigitNumber(): string {
     const randomIndex = Math.floor(Math.random() * characters.length)
     hash += characters[randomIndex]
   }
-  console.log('hush', hash)
 
   return hash
 }
 
-const videoHandleStatus = ref('未上传')
 const videoHandleUpdate = (payload: { status: string }) => {
-  console.log('Update event:', payload)
-  videoHandleStatus.value = payload.status
+  statusValue.videoHandleStatus = payload.status
   if (payload.status === 'success') {
     // ElMessage.success('视频上传成功')
   } else if (payload.status === 'error') {
@@ -252,21 +247,6 @@ interface RuleForm {
   officialValue: string // 是否有五级等以内为重要政治性职务人士
 }
 
-interface RuleFormRequest {
-  hush: string // 隐藏字段
-  name: string // 姓名
-  id_card: string // 身份证号码
-  phone: string // 手机号
-  mail_address: string // 通讯地址
-  amount: number // 金额
-  buy_or_sell: number // 买/卖 (1-买, 2-卖)
-
-  funding_source: number // 资金来源 (1-活期存款, 2-储蓄存款, 3-借贷款, 4-股票, 5-债券, 6-其他)
-  UserFor: number // 委托买费用途 (按实际情况处理) 投资理财1/消费性产品2/旅游3/资金周转4/其他5
-  wallet_address: string // 接收方钱包地址
-  political: number // 是否有五级等以内为重要政治性职务人士 (1-是, 2-否)
-}
-
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
   hush: random16DigitNumber.value,
@@ -281,19 +261,7 @@ const ruleForm = reactive<RuleForm>({
   MailingAddress: form.MailingAddress || '',
   WalletAddress: form.WalletAddress || ''
 })
-const formRequest = reactive<RuleFormRequest>({
-  hush: ruleForm.hush,
-  name: ruleForm.name,
-  id_card: ruleForm.DocumentNumber,
-  phone: ruleForm.Mobile,
-  mail_address: ruleForm.Business,
-  amount: Number(ruleForm.Amount),
-  buy_or_sell: ruleForm.SourceOfFundsValue == '買' ? 1 : 2,
-  funding_source: Number(ruleForm.UseOfExpensesValue),
-  UserFor: Number(ruleForm.officialValue),
-  wallet_address: ruleForm.MailingAddress,
-  political: Number(ruleForm.WalletAddress)
-})
+
 // 表单验证规则
 const rules = reactive<FormRules<RuleForm>>({
   name: [
@@ -382,12 +350,15 @@ const validateForm = async (
     return false
   }
 
-  if (frontStatus.value !== 'success' || backStatus.value !== 'success') {
+  if (
+    statusValue.frontStatus !== 'success' ||
+    statusValue.backStatus !== 'success'
+  ) {
     ElMessage.error('請上傳身分證照片')
     return false
   }
 
-  if (videoHandleStatus.value !== 'success') {
+  if (statusValue.videoHandleStatus !== 'success') {
     ElMessage.error('請上傳聲明視頻')
     return false
   }
@@ -402,16 +373,10 @@ const handleSubmit = async (
   // const isValid = true
 
   if (isValid) {
-    console.log('Form validated for:', action)
     if (action === 'submit') {
       // 提交逻辑
-      console.log('Form submitted successfully!')
     } else if (action === 'sign') {
       // 签名逻辑
-      console.log('View and sign operation.', ruleForm)
-      const res = await FormUpload(formRequest)
-      console.log('res from data ', res.data)
-
       formStore.setFormData(ruleForm)
       router.push({
         path: '/viewAndSign'
@@ -445,16 +410,6 @@ const BusinessOptions = ref([
   { value: '1', label: '買' },
   { value: '2', label: '賣' }
 ])
-// 重置表单
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-  ruleForm.name = ''
-  ruleForm.DocumentNumber = ''
-  ruleForm.Mobile = ''
-  frontStatus.value = '未上传'
-  backStatus.value = '未上传'
-}
 
 onMounted(() => {})
 </script>

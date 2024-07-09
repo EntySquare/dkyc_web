@@ -1,26 +1,31 @@
 <template>
   <div v-loading="loading" class="upload-container">
     <input
-        ref="DeclarationVideoInput"
-        id="DeclarationVideoUpload"
-        type="file"
-        class="upload-input"
-        accept="video/*"
-        @change="DeclarationVideoChange('DeclarationVideo')"
+      ref="DeclarationVideoInput"
+      id="DeclarationVideoUpload"
+      type="file"
+      class="upload-input"
+      accept="video/*"
+      @change="DeclarationVideoChange('DeclarationVideo')"
     />
     <label
-        v-if="!DeclarationVideoVideo"
-        for="DeclarationVideoUpload"
-        class="upload-label"
+      v-if="!DeclarationVideoVideo"
+      for="DeclarationVideoUpload"
+      class="upload-label"
     >
       <div class="DeclarationVideo">
         <div class="upload-text">
-          <div><img src="@/assets/images/upload-cloud.svg" alt=""/></div>
+          <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳聲明影片</div>
         </div>
       </div>
     </label>
-    <div id="DeclarationVideoVideo" v-loading="loading" v-else class="video-preview">
+    <div
+      id="DeclarationVideoVideo"
+      v-loading="loading"
+      v-else
+      class="video-preview"
+    >
       <video :src="DeclarationVideoVideo" controls></video>
       <button @click="removeVideo('DeclarationVideo')">移除</button>
     </div>
@@ -28,25 +33,28 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
-import {ElMessage} from 'element-plus'
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
-import ffmpeg from "@/utils/ffmpeg.js"
-import {uploadImage} from "@/api/upload";
+import ffmpeg from '@/utils/ffmpeg.js'
+import { uploadImage } from '@/api/upload'
+import useImageStore from '@/store/modules/imageStores'
 
 interface UpdateEvent {
   type: 'DeclarationVideo' | 'back'
   status: 'success' | 'error' | 'removed'
 }
-
+const storeVlaue = useImageStore()
 const props = defineProps<{ id: string }>()
 const emit = defineEmits<{
   (e: 'update', payload: UpdateEvent): void
 }>()
 const loading = ref(false)
 const DeclarationVideoInput = ref<HTMLInputElement | null>(null)
-const DeclarationVideoVideo = ref<string | null>(null)
-const videoMsg = ref("")
+const DeclarationVideoVideo =
+  ref<string | null>(storeVlaue.DeclarationVideoVideo) ||
+  ref<string | null>(null)
+const videoMsg = ref('')
 const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
   // loading.value = true
   const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
@@ -59,47 +67,45 @@ const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
       reader.onload = () => {
         if (type === 'DeclarationVideo') {
           DeclarationVideoVideo.value = reader.result as string
+          storeVlaue.setDeclarationVideoVideo(reader.result as string)
         }
       }
       reader.onerror = () => {
-        emit('update', {type, status: 'error'})
+        emit('update', { type, status: 'error' })
         ElMessage.error('影片讀取失敗')
       }
 
       try {
-        const videoBlob = await ffmpeg.squeezVideo(file, file.name, file.type, videoMsg.value) as Blob
+        const videoBlob = (await ffmpeg.squeezVideo(
+          file,
+          file.name,
+          file.type,
+          videoMsg.value
+        )) as Blob
         const formData = new FormData()
         formData.append(`${props.id}_video`, videoBlob)
         const response = await uploadImage(formData, 'multipart/form-data')
         if (response.data.code === 0) {
           reader.readAsDataURL(file)
-          emit('update', {type, status: 'success'})
+          emit('update', { type, status: 'success' })
           ElMessage.success('影片上傳成功')
         } else {
-          emit('update', {type, status: 'error'})
+          emit('update', { type, status: 'error' })
           ElMessage.error('影片上傳失敗')
         }
       } catch (error) {
-        emit('update', {type, status: 'error'})
+        emit('update', { type, status: 'error' })
         ElMessage.error('影片上傳失敗')
       } finally {
         loading.value = false
       }
     } else {
       ElMessage.error('請選擇視訊文件')
+      DeclarationVideoVideo.value = null
+      storeVlaue.setDeclarationVideoVideo(null)
       input!.value = '' // 清空输入以防止再次选择相同文件
     }
     // loading.value = false
-  }
-}
-
-const uploadCompressVideo = async (file) => {
-  if (file) {
-    let filename = file.name;
-    let filetype = file.type;
-    console.log("msg1:", videoMsg)
-
-    return await ffmpeg.squeezVideo(file, filename, filetype, videoMsg.value);
   }
 }
 
@@ -108,14 +114,7 @@ const removeVideo = (type: 'DeclarationVideo') => {
     DeclarationVideoVideo.value = null
     DeclarationVideoInput.value!.value = '' // 清空input的值
   }
-  emit('update', {type, status: 'removed'})
-}
-
-const DeclarationVideoClick = (type: 'DeclarationVideo') => {
-  const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
-  if (input) {
-    input.click()
-  }
+  emit('update', { type, status: 'removed' })
 }
 </script>
 

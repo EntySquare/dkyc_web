@@ -8,7 +8,7 @@
           </div>
           <div class="KYC_Disclaimer_title">KYC免責聲明</div>
         </div>
-        <div class="KYC_Disclaimer_text">規避各自風險，本平臺只收集xxxxxx</div>
+        <div class="KYC_Disclaimer_text">規避各自風險，本平臺只收集</div>
       </div>
       <div class="card">
         <!-- <CallUpCamera />

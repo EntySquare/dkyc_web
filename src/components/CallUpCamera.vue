@@ -31,7 +31,6 @@ const imgurl = ref<string | null>(null)
 const permissionDenied = ref(false)
 
 const openCamera = () => {
-  console.log('Trying to open camera...')
   // 重置权限拒绝标志
   permissionDenied.value = false
   // 检测浏览器是否支持mediaDevices
@@ -40,18 +39,15 @@ const openCamera = () => {
       // 开启视频，关闭音频
       .getUserMedia({ audio: false, video: { facingMode: 'user' } })
       .then(stream => {
-        console.log('Camera stream received:', stream)
         if (videoDom.value) {
           // 将视频流传入video控件
           videoDom.value.srcObject = stream
           // 播放
           videoDom.value
             .play()
-            .then(() => {
-              console.log('Video playing...')
-            })
+            .then(() => {})
             .catch(err => {
-              console.error('Error playing video:', err)
+              // console.error('Error playing video:', err)
             })
         }
       })
@@ -101,7 +97,6 @@ const stop = () => {
   if (videoDom.value && videoDom.value.srcObject) {
     const stream = videoDom.value.srcObject as MediaStream
     stream.getTracks().forEach(track => track.stop())
-    console.log('Camera stopped')
   }
 }
 
