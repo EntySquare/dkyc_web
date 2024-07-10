@@ -64,6 +64,10 @@ const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
   if (file) {
     if (file.type.startsWith('video/')) {
       loading.value = true
+      if (file.size > 500 * 1024 * 1024) {
+        emit('update', {type, status: 'error'})
+        ElMessage.error('影片需小於500mb')
+      }
       const reader = new FileReader()
       reader.onload = () => {
         if (type === 'DeclarationVideo') {
