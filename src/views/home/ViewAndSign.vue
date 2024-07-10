@@ -301,7 +301,7 @@ const UseOfExpensesOptionsfun = () => {
 
 // 生成 PDF 并上传到服务器
 const generatePDF = async () => {
-  //判断是否签字
+  // 判断是否签字
   if (!signatureImage.value || !signatureImage1.value) {
     ElMessage.error('請簽名')
     return
@@ -361,16 +361,17 @@ const generatePDF = async () => {
       // 将 Canvas 转换为 PNG 格式的数据 URL
       // const imgData = canvas.toDataURL('image/png')
 
+      const windowWidth = document.documentElement.scrollWidth
+      const windowHeight = document.documentElement.scrollHeight
       // 创建新的 jsPDF 实例
       const pdf = new jsPDF({
         orientation: 'p', // 页面方向：'p' 纵向，'l' 横向
-        unit: 'mm', // 单位：'mm' 毫米，'pt' 点，'in' 英寸
-        format: [300, 1000] // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
+        unit: 'px', // 单位：'mm' 毫米，'pt' 点，'in' 英寸
+        format: [windowWidth, windowHeight / 1.7] // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
       })
 
       // 获取 PDF 页面的宽度和高度
       const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
 
       // 添加第一页的内容
       pdf.addImage(
@@ -379,7 +380,7 @@ const generatePDF = async () => {
         10,
         10,
         pdfWidth - 20,
-        pdfHeight - 15
+        (canvas1.height * (pdfWidth - 20)) / canvas1.width
       )
 
       pdf.setFontSize(12)
@@ -394,7 +395,7 @@ const generatePDF = async () => {
         10,
         10,
         pdfWidth - 20,
-        pdfHeight - 100
+        (canvas2.height * (pdfWidth - 20)) / canvas2.width
       )
       // 提供下载预览功能
       pdf.save('document.pdf')
@@ -434,8 +435,10 @@ const generatePDF = async () => {
       loading.value = false
       await ElMessageBox.alert('信息提交已完成，確認後將刷新頁面', '', {
         // if you want to disable its autofocus
-
-        confirmButtonText: '確認'
+        confirmButtonText: '確認',
+        showCancelButton: false, //不显示取消按钮
+        showClose: false, //是否显示右上角的x
+        closeOnClickModal: false //是否可以点击空白处关闭弹窗
       })
       useFormStore().setFormData(form)
       useImageStore().clearImages()
@@ -464,7 +467,9 @@ const generatePDF = async () => {
 .texs {
   border-bottom: 2px solid #000;
 }
-
+:deep(.el-message-box__header) {
+  display: none !important;
+}
 .SubmissionOfDeclaration {
   margin-top: 40px;
   width: 160px;
@@ -484,14 +489,14 @@ const generatePDF = async () => {
   justify-content: center;
   align-items: center;
   color: #000000;
-  width: 100%;
+  width: 100vw;
   flex-shrink: 0;
 
   .TradingDisclaime {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 97vw;
+    width: 100%;
   }
 
   .TradingDisclaime_title {
