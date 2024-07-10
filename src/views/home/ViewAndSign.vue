@@ -398,7 +398,7 @@ const generatePDF = async () => {
         (canvas2.height * (pdfWidth - 20)) / canvas2.width
       )
       // 提供下载预览功能
-      pdf.save('document.pdf')
+      // pdf.save('document.pdf')
 
       // 将 PDF 输出为 Blob 对象
       const pdfBlob = pdf.output('blob')
