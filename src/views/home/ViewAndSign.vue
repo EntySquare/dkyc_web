@@ -262,7 +262,7 @@ const getCurrentDate = (): {
   day: string
 } => {
   const today = new Date()
-  const year = String(today.getFullYear())
+  const year = String(today.getFullYear() - 1911)
   const month = String(today.getMonth() + 1).padStart(2, '0') // 月份从0开始，所以需要加1
   const day = String(today.getDate()).padStart(2, '0')
 
@@ -367,7 +367,8 @@ const generatePDF = async () => {
       const pdf = new jsPDF({
         orientation: 'p', // 页面方向：'p' 纵向，'l' 横向
         unit: 'px', // 单位：'mm' 毫米，'pt' 点，'in' 英寸
-        format: [windowWidth, windowHeight / 1.7] // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
+        format: [windowWidth, windowHeight / 1.7], // 自定义尺寸，单位为指定的单位（这里是毫米） // 页面格式：'a0' - 'a10', 'b0' - 'b10', 'letter', 'legal', 'ledger', 'tabloid'
+        compress: true // 是否压缩 PDF 文件
       })
 
       // 获取 PDF 页面的宽度和高度
