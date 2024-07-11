@@ -37,7 +37,7 @@ import {ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import ffmpegFunctions from '@/utils/ffmpeg'
-import {uploadImage} from '@/api/upload'
+import {uploadFile} from '@/api/upload'
 import useImageStore from '@/store/modules/imageStores'
 
 interface UpdateEvent {
@@ -88,8 +88,10 @@ const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
             videoMsg.value
         )) as Blob
         const formData = new FormData()
-        formData.append(`${props.id}_video`, videoBlob)
-        const response = await uploadImage(formData, 'multipart/form-data')
+        const spliteFileName = file.type.split('/')
+        const fileEndWith = spliteFileName[spliteFileName.length - 1]
+        formData.append(`${props.id}_video.${fileEndWith}`, videoBlob)
+        const response = await uploadFile(formData, 'multipart/form-data')
         if (response.data.code === 0) {
           reader.readAsDataURL(file)
           emit('update', {type, status: 'success'})

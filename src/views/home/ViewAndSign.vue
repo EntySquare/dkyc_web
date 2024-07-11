@@ -191,7 +191,7 @@ import useFormStore from '@/store/modules/formStore'
 import { onMounted, reactive, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { FormUpload, uploadImage } from '@/api/upload'
+import { FormUpload, uploadFile } from '@/api/upload'
 import { Action, ElMessage, ElMessageBox } from 'element-plus'
 import useImageStore from '@/store/modules/imageStores'
 
@@ -406,10 +406,10 @@ const generatePDF = async () => {
 
       // 创建 FormData 对象并添加 PDF 文件
       const formData = new FormData()
-      formData.append(`${formRequest.hash}_pdf`, pdfBlob)
+      formData.append(`${formRequest.hash}_pdf.pdf`, pdfBlob)
 
       // 发送 POST 请求，将 PDF 上传到服务器
-      const response = await uploadImage(formData, 'multipart/form-data')
+      const response = await uploadFile(formData, 'multipart/form-data')
       if (response.data.code !== 0) {
         ElMessage.error('文件上傳失敗')
         return
