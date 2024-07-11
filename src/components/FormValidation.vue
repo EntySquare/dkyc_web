@@ -120,7 +120,7 @@
         <p>反面照片状态: {{ backStatus }}</p>
       </div> -->
     </el-form-item>
-    <el-form-item label="12. 上傳聲明影片">
+    <!-- <el-form-item label="12. 上傳聲明影片">
       <div class="textAndImg">
         <div class="text_content">
           請在填寫上述資訊後，上傳您的聲明視頻，影片中需露出完整臉部並讀出以下文字
@@ -161,8 +161,9 @@
         style="margin-top: 2px"
         @update="videoHandleUpdate"
       />
-    </el-form-item>
-    <el-form-item class="item__content_bg" label="13.免责协议签名 ">
+    </el-form-item> -->
+
+    <el-form-item class="item__content_bg" label="12.免责协议签名 ">
       <div class="DisclaimerAgreement">
         <div class="agreement_left">《免責協議文件》</div>
         <el-button
@@ -238,16 +239,16 @@ function generateRandom16DigitNumber(): string {
   return hash
 }
 
-const videoHandleUpdate = (payload: { status: string }) => {
-  statusValue.videoHandleStatus = payload.status
-  if (payload.status === 'success') {
-    // ElMessage.success('视频上传成功')
-  } else if (payload.status === 'error') {
-    // ElMessage.error('视频上传失败')
-  } else if (payload.status === 'removed') {
-    // ElMessage.info('视频已移除')
-  }
-}
+// const videoHandleUpdate = (payload: { status: string }) => {
+//   statusValue.videoHandleStatus = payload.status
+//   if (payload.status === 'success') {
+//     // ElMessage.success('视频上传成功')
+//   } else if (payload.status === 'error') {
+//     // ElMessage.error('视频上传失败')
+//   } else if (payload.status === 'removed') {
+//     // ElMessage.info('视频已移除')
+//   }
+// }
 interface RuleForm {
   hash: string // 隐藏字段
   name: string // 姓名
@@ -373,10 +374,10 @@ const validateForm = async (
     return false
   }
 
-  if (statusValue.videoHandleStatus !== 'success') {
-    ElMessage.error('請上傳聲明視頻')
-    return false
-  }
+  // if (statusValue.videoHandleStatus !== 'success') {
+  //   ElMessage.error('請上傳聲明視頻')
+  //   return false
+  // }
 
   return true
 }
