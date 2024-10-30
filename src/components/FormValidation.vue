@@ -188,55 +188,55 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from "vue";
 import {
   ElMessage,
   type ComponentSize,
   type FormInstance,
-  type FormRules
-} from 'element-plus'
-import router from '@/router'
-import useFormStore from '@/store/modules/formStore'
-import useImageStore from '@/store/modules/imageStores'
+  type FormRules,
+} from "element-plus";
+import router from "@/router";
+import useFormStore from "@/store/modules/formStore";
+import useImageStore from "@/store/modules/imageStores";
 
 interface UpdateEvent {
-  type: 'idcardf' | 'idcardb'
-  status: 'success' | 'error' | 'removed'
+  type: "idcardf" | "idcardb";
+  status: "success" | "error" | "removed";
 }
 
 const handleInputChange = (field: keyof RuleForm, event: InputEvent) => {
-  const value = (event.target as HTMLInputElement).value
+  const value = (event.target as HTMLInputElement).value;
   // 去除空格
-  ruleForm[field] = value.replace(/\s+/g, '')
-}
+  ruleForm[field] = value.replace(/\s+/g, "");
+};
 
-const statusValue = useImageStore()
+const statusValue = useImageStore();
 const handleUpdate = ({ type, status }: UpdateEvent) => {
-  if (type === 'idcardf') {
-    statusValue.frontStatus = status
-  } else if (type === 'idcardb') {
-    statusValue.backStatus = status
+  if (type === "idcardf") {
+    statusValue.frontStatus = status;
+  } else if (type === "idcardb") {
+    statusValue.backStatus = status;
   }
-}
+};
 
-const formStore = useFormStore()
-const form = formStore.form
+const formStore = useFormStore();
+const form = formStore.form;
 
 // 定义一个响应式变量，用于存储生成的随机18位数
 const random16DigitNumber =
-  form.hash !== '' ? ref(form.hash) : ref(generateRandom16DigitNumber())
+  form.hash !== "" ? ref(form.hash) : ref(generateRandom16DigitNumber());
 
 // 生成18位随机数的函数
 function generateRandom16DigitNumber(): string {
   const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let hash = ''
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let hash = "";
   for (let i = 0; i < 18; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    hash += characters[randomIndex]
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    hash += characters[randomIndex];
   }
 
-  return hash
+  return hash;
 }
 
 // const videoHandleUpdate = (payload: { status: string }) => {
@@ -250,43 +250,43 @@ function generateRandom16DigitNumber(): string {
 //   }
 // }
 interface RuleForm {
-  hash: string // 隐藏字段
-  name: string // 姓名
-  DocumentNumber: string // 身份证号码
-  Mobile: string // 手机号
-  MailingAddress: string // 通讯地址
-  Business: string // 买/卖
-  Amount: string // 金额
-  SourceOfFundsValue: string // 资金来源
-  UseOfExpensesValue: string // 委托买费用途
-  WalletAddress: string // 接收方钱包地址
-  officialValue: string // 是否有五级等以内为重要政治性职务人士
+  hash: string; // 隐藏字段
+  name: string; // 姓名
+  DocumentNumber: string; // 身份证号码
+  Mobile: string; // 手机号
+  MailingAddress: string; // 通讯地址
+  Business: string; // 买/卖
+  Amount: string; // 金额
+  SourceOfFundsValue: string; // 资金来源
+  UseOfExpensesValue: string; // 委托买费用途
+  WalletAddress: string; // 接收方钱包地址
+  officialValue: string; // 是否有五级等以内为重要政治性职务人士
 }
 
-const ruleFormRef = ref<FormInstance>()
+const ruleFormRef = ref<FormInstance>();
 const ruleForm = reactive<RuleForm>({
   hash: random16DigitNumber.value,
-  name: form.name.trim() || '',
-  DocumentNumber: form.DocumentNumber || '',
-  Mobile: form.Mobile || '',
-  Business: form.Business || '',
-  Amount: form.Amount || '',
-  SourceOfFundsValue: form.SourceOfFundsValue || '',
-  UseOfExpensesValue: form.UseOfExpensesValue || '',
-  officialValue: form.officialValue || '',
-  MailingAddress: form.MailingAddress || '',
-  WalletAddress: form.WalletAddress || ''
-})
+  name: form.name.trim() || "",
+  DocumentNumber: form.DocumentNumber || "",
+  Mobile: form.Mobile || "",
+  Business: form.Business || "",
+  Amount: form.Amount || "",
+  SourceOfFundsValue: form.SourceOfFundsValue || "",
+  UseOfExpensesValue: form.UseOfExpensesValue || "",
+  officialValue: form.officialValue || "",
+  MailingAddress: form.MailingAddress || "",
+  WalletAddress: form.WalletAddress || "",
+});
 
 // 表单验证规则
 const rules = reactive<FormRules<RuleForm>>({
   name: [
-    { required: true, message: '請輸入姓名', trigger: 'change' },
-    { min: 2, max: 11, message: '長度應該在2到11之間', trigger: 'change' }
+    { required: true, message: "請輸入姓名", trigger: "change" },
+    { min: 2, max: 11, message: "長度應該在2到11之間", trigger: "change" },
   ],
   DocumentNumber: [
-    { required: true, message: '請輸入證件號碼', trigger: 'change' },
-    { min: 10, max: 10, message: '長度應為10位', trigger: 'change' }
+    { required: true, message: "請輸入證件號碼", trigger: "change" },
+    { min: 10, max: 10, message: "長度應為10位", trigger: "change" },
     //正则
     // {
     //   pattern:
@@ -296,30 +296,30 @@ const rules = reactive<FormRules<RuleForm>>({
     // }
   ],
   Mobile: [
-    { required: true, message: '請輸入手機號', trigger: 'change' },
+    { required: true, message: "請輸入手機號", trigger: "change" },
     {
       pattern: /^[0-9]*$/,
-      message: '請輸入正確的手機號',
-      trigger: 'change'
-    }
+      message: "請輸入正確的手機號",
+      trigger: "change",
+    },
   ],
-  Business: [{ required: true, message: '請選擇買/賣', trigger: 'change' }],
+  Business: [{ required: true, message: "請選擇買/賣", trigger: "change" }],
   MailingAddress: [
-    { required: true, message: '請輸入通訊地址', trigger: 'change' }
+    { required: true, message: "請輸入通訊地址", trigger: "change" },
   ],
   Amount: [
-    { required: true, message: '請輸入金額', trigger: 'change' },
+    { required: true, message: "請輸入金額", trigger: "change" },
     {
       pattern: /[1-9]\d*/,
-      message: '請輸入正確的資金',
-      trigger: 'change'
-    }
+      message: "請輸入正確的資金",
+      trigger: "change",
+    },
   ],
   SourceOfFundsValue: [
-    { required: true, message: '請選擇資金來源', trigger: 'change' }
+    { required: true, message: "請選擇資金來源", trigger: "change" },
   ],
   UseOfExpensesValue: [
-    { required: true, message: '請選擇委託買費用途', trigger: 'change' }
+    { required: true, message: "請選擇委託買費用途", trigger: "change" },
   ],
   WalletAddress: [
     // { required: true, message: '请输入接收方钱包地址', trigger: 'change' }
@@ -327,28 +327,28 @@ const rules = reactive<FormRules<RuleForm>>({
   officialValue: [
     {
       required: true,
-      message: '請選擇是否有五級等以內為重要政治性職務人士',
-      trigger: 'change'
-    }
-  ]
-})
+      message: "請選擇是否有五級等以內為重要政治性職務人士",
+      trigger: "change",
+    },
+  ],
+});
 
 const validateForm = async (
   formEl: FormInstance | undefined
 ): Promise<boolean> => {
-  if (!formEl) return false
+  if (!formEl) return false;
 
-  let valid = true
+  let valid = true;
   await formEl.validate((isValid, fields) => {
     if (!isValid) {
-      valid = false
+      valid = false;
       // console.log('error submit!', fields)
     }
-  })
+  });
 
   if (!valid) {
-    ElMessage.error('請填寫完整資訊')
-    return false
+    ElMessage.error("請填寫完整資訊");
+    return false;
   }
 
   if (
@@ -362,16 +362,16 @@ const validateForm = async (
     !ruleForm.UseOfExpensesValue ||
     !ruleForm.officialValue
   ) {
-    ElMessage.error('請填寫完整資訊')
-    return false
+    ElMessage.error("請填寫完整資訊");
+    return false;
   }
 
   if (
-    statusValue.frontStatus !== 'success' ||
-    statusValue.backStatus !== 'success'
+    statusValue.frontStatus !== "success" ||
+    statusValue.backStatus !== "success"
   ) {
-    ElMessage.error('請上傳身分證照片')
-    return false
+    ElMessage.error("請上傳身分證照片");
+    return false;
   }
 
   // if (statusValue.videoHandleStatus !== 'success') {
@@ -379,60 +379,60 @@ const validateForm = async (
   //   return false
   // }
 
-  return true
-}
+  return true;
+};
 const handleSubmit = async (
   formEl: FormInstance | undefined,
   action: string
 ) => {
-  const isValid = await validateForm(formEl)
+  const isValid = await validateForm(formEl);
   // const isValid = true
 
   if (isValid) {
-    if (action === 'submit') {
+    if (action === "submit") {
       // 提交逻辑
-    } else if (action === 'sign') {
+    } else if (action === "sign") {
       // 签名逻辑
-      formStore.setFormData(ruleForm)
+      formStore.setFormData(ruleForm);
       router.push({
-        path: '/viewAndSign'
-      })
+        path: "/viewAndSign",
+      });
     }
   }
-}
+};
 
 const SourceOfFundsOptions = ref([
-  { value: '1', label: '活期存款' },
-  { value: '2', label: '儲蓄存款' },
-  { value: '3', label: '借貸款' },
-  { value: '4', label: '股票' },
-  { value: '5', label: '債券' },
-  { value: '6', label: '其他' }
-])
+  { value: "1", label: "活期存款" },
+  { value: "2", label: "儲蓄存款" },
+  { value: "3", label: "借貸款" },
+  { value: "4", label: "股票" },
+  { value: "5", label: "債券" },
+  { value: "6", label: "其他" },
+]);
 
 const UseOfExpensesOptions = ref([
-  { value: '1', label: '投資理財' },
-  { value: '2', label: '消費性產品' },
-  { value: '3', label: '旅遊' },
-  { value: '4', label: '資金周轉' },
-  { value: '5', label: '其他' }
-])
+  { value: "1", label: "投資理財" },
+  { value: "2", label: "消費性產品" },
+  { value: "3", label: "旅遊" },
+  { value: "4", label: "資金周轉" },
+  { value: "5", label: "其他" },
+]);
 
 const officialOptions = ref([
-  { value: '1', label: '是' },
-  { value: '2', label: '否' }
-])
+  { value: "1", label: "是" },
+  { value: "2", label: "否" },
+]);
 const BusinessOptions = ref([
-  { value: '1', label: '買' },
-  { value: '2', label: '賣' }
-])
+  { value: "1", label: "買" },
+  { value: "2", label: "賣" },
+]);
 
-onMounted(() => {})
+onMounted(() => {});
 </script>
 
 <style scoped lang="less">
 .texs {
-  color: #005efe;
+  color: @primary-color;
   // 下划线
 }
 .textAndImg {
@@ -479,7 +479,7 @@ onMounted(() => {})
 }
 .SaveCommit {
   border-radius: 4px;
-  background: #005efe;
+  background: @primary-color;
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.08);
   width: 100%;
   height: 54px;
@@ -506,7 +506,7 @@ onMounted(() => {})
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    border: 1px solid #005efe;
+    border: 1px solid @primary-color;
     background: #f6f6f6;
     color: #4b4b4b;
     font-family: Poppins;
@@ -524,7 +524,7 @@ onMounted(() => {})
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    background: #005efe;
+    background: @primary-color;
     box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.08);
     color: #d5d5d5;
     font-family: Poppins;
@@ -544,7 +544,7 @@ onMounted(() => {})
   line-height: normal;
 }
 :deep(.el-form-item__label::before) {
-  content: '' !important;
+  content: "" !important;
   margin-right: 0px !important;
   margin: 0 !important;
   padding: 0 !important;

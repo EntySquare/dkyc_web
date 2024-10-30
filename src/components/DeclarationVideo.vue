@@ -1,30 +1,30 @@
 <template>
   <div v-loading="loading" class="upload-container">
     <input
-        ref="DeclarationVideoInput"
-        id="DeclarationVideoUpload"
-        type="file"
-        class="upload-input"
-        accept="video/*"
-        @change="DeclarationVideoChange('DeclarationVideo')"
+      ref="DeclarationVideoInput"
+      id="DeclarationVideoUpload"
+      type="file"
+      class="upload-input"
+      accept="video/*"
+      @change="DeclarationVideoChange('DeclarationVideo')"
     />
     <label
-        v-if="!DeclarationVideoVideo"
-        for="DeclarationVideoUpload"
-        class="upload-label"
+      v-if="!DeclarationVideoVideo"
+      for="DeclarationVideoUpload"
+      class="upload-label"
     >
       <div class="DeclarationVideo">
         <div class="upload-text">
-          <div><img src="@/assets/images/upload-cloud.svg" alt=""/></div>
+          <div><img src="@/assets/images/upload-cloud.svg" alt="" /></div>
           <div>上傳聲明影片</div>
         </div>
       </div>
     </label>
     <div
-        id="DeclarationVideoVideo"
-        v-loading="loading"
-        v-else
-        class="video-preview"
+      id="DeclarationVideoVideo"
+      v-loading="loading"
+      v-else
+      class="video-preview"
     >
       <video :src="DeclarationVideoVideo" controls></video>
       <button @click="removeVideo('DeclarationVideo')">移除</button>
@@ -33,99 +33,100 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
-import {ElMessage} from 'element-plus'
-import 'element-plus/theme-chalk/el-message.css'
-import ffmpegFunctions from '@/utils/ffmpeg'
-import {uploadFile} from '@/api/upload'
-import useImageStore from '@/store/modules/imageStores'
+import { ref } from "vue";
+import { ElMessage } from "element-plus";
+import "element-plus/theme-chalk/el-message.css";
+import ffmpegFunctions from "@/utils/ffmpeg";
+import { uploadFile } from "@/api/upload";
+import useImageStore from "@/store/modules/imageStores";
 
 interface UpdateEvent {
-  type: 'DeclarationVideo' | 'back'
-  status: 'success' | 'error' | 'removed'
+  type: "DeclarationVideo" | "back";
+  status: "success" | "error" | "removed";
 }
 
-const storeVlaue = useImageStore()
-const props = defineProps<{ id: string }>()
+const storeVlaue = useImageStore();
+const props = defineProps<{ id: string }>();
 const emit = defineEmits<{
-  (e: 'update', payload: UpdateEvent): void
-}>()
-const loading = ref(false)
-const DeclarationVideoInput = ref<HTMLInputElement | null>(null)
+  (e: "update", payload: UpdateEvent): void;
+}>();
+const loading = ref(false);
+const DeclarationVideoInput = ref<HTMLInputElement | null>(null);
 const DeclarationVideoVideo =
-    ref<string | null>(storeVlaue.DeclarationVideoVideo) ||
-    ref<string | null>(null)
-const videoMsg = ref('')
-const DeclarationVideoChange = async (type: 'DeclarationVideo' | 'back') => {
+  ref<string | null>(storeVlaue.DeclarationVideoVideo) ||
+  ref<string | null>(null);
+const videoMsg = ref("");
+const DeclarationVideoChange = async (type: "DeclarationVideo" | "back") => {
   // loading.value = true
-  const input = type === 'DeclarationVideo' ? DeclarationVideoInput.value : null
-  const file = input?.files ? input.files[0] : null
+  const input =
+    type === "DeclarationVideo" ? DeclarationVideoInput.value : null;
+  const file = input?.files ? input.files[0] : null;
 
   if (file) {
-    if (file.type.startsWith('video/')) {
-      loading.value = true
+    if (file.type.startsWith("video/")) {
+      loading.value = true;
       if (file.size > 500 * 1024 * 1024) {
-        emit('update', {type, status: 'error'})
-        ElMessage.error('影片需小於500mb')
+        emit("update", { type, status: "error" });
+        ElMessage.error("影片需小於500mb");
       }
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = () => {
-        if (type === 'DeclarationVideo') {
-          DeclarationVideoVideo.value = reader.result as string
-          storeVlaue.setDeclarationVideoVideo(reader.result as string)
+        if (type === "DeclarationVideo") {
+          DeclarationVideoVideo.value = reader.result as string;
+          storeVlaue.setDeclarationVideoVideo(reader.result as string);
         }
-      }
+      };
       reader.onerror = () => {
-        emit('update', {type, status: 'error'})
-        ElMessage.error('影片讀取失敗')
-      }
+        emit("update", { type, status: "error" });
+        ElMessage.error("影片讀取失敗");
+      };
 
       try {
         const videoBlob = (await ffmpegFunctions.compressVideo(
-            file,
-            file.name,
-            file.type,
-            videoMsg.value
-        )) as Blob
-        const formData = new FormData()
-        const spliteFileName = file.type.split('/')
-        const fileEndWith = spliteFileName[spliteFileName.length - 1]
-        formData.append(`${props.id}_video.${fileEndWith}`, videoBlob)
-        const response = await uploadFile(formData, 'multipart/form-data')
+          file,
+          file.name,
+          file.type,
+          videoMsg.value
+        )) as Blob;
+        const formData = new FormData();
+        const spliteFileName = file.type.split("/");
+        const fileEndWith = spliteFileName[spliteFileName.length - 1];
+        formData.append(`${props.id}_video.${fileEndWith}`, videoBlob);
+        const response = await uploadFile(formData, "multipart/form-data");
         if (response.data.code === 0) {
-          reader.readAsDataURL(file)
-          emit('update', {type, status: 'success'})
-          ElMessage.success('影片上傳成功')
+          reader.readAsDataURL(file);
+          emit("update", { type, status: "success" });
+          ElMessage.success("影片上傳成功");
         } else {
-          emit('update', {type, status: 'error'})
-          ElMessage.error('影片上傳失敗')
+          emit("update", { type, status: "error" });
+          ElMessage.error("影片上傳失敗");
         }
       } catch (error) {
-        emit('update', {type, status: 'error'})
-        ElMessage.error('影片上傳失敗')
+        emit("update", { type, status: "error" });
+        ElMessage.error("影片上傳失敗");
       } finally {
-        loading.value = false
+        loading.value = false;
       }
     } else {
-      ElMessage.error('請選擇視訊文件')
-      DeclarationVideoVideo.value = null
-      storeVlaue.setDeclarationVideoVideo(null)
-      input!.value = '' // 清空输入以防止再次选择相同文件
+      ElMessage.error("請選擇視訊文件");
+      DeclarationVideoVideo.value = null;
+      storeVlaue.setDeclarationVideoVideo(null);
+      input!.value = ""; // 清空输入以防止再次选择相同文件
     }
     // loading.value = false
   }
-}
+};
 
-const removeVideo = (type: 'DeclarationVideo') => {
-  if (type === 'DeclarationVideo') {
-    DeclarationVideoVideo.value = null
-    DeclarationVideoInput.value!.value = '' // 清空input的值
+const removeVideo = (type: "DeclarationVideo") => {
+  if (type === "DeclarationVideo") {
+    DeclarationVideoVideo.value = null;
+    DeclarationVideoInput.value!.value = ""; // 清空input的值
   }
-  emit('update', {type, status: 'removed'})
-}
+  emit("update", { type, status: "removed" });
+};
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .DeclarationVideo {
   display: flex;
   justify-content: space-around;
@@ -166,7 +167,7 @@ const removeVideo = (type: 'DeclarationVideo') => {
   align-items: center;
   color: var(--Neutral-Color-Font-Regular, #606266);
   font-variant-numeric: lining-nums tabular-nums;
-  font-family: 'Noto Sans SC';
+  font-family: "Noto Sans SC";
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -174,10 +175,11 @@ const removeVideo = (type: 'DeclarationVideo') => {
 }
 
 .bluesc {
-  color: #005efe;
+  color: @primary-color;
+
   font-variant-numeric: lining-nums tabular-nums;
   margin-left: 4px;
-  font-family: 'Noto Sans SC';
+  font-family: "Noto Sans SC";
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -211,6 +213,6 @@ const removeVideo = (type: 'DeclarationVideo') => {
   border: none;
   padding: 5px;
   cursor: pointer;
-  color: #005efe;
+  color: @primary-color;
 }
 </style>

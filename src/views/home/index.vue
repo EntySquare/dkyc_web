@@ -22,7 +22,7 @@
 
 <style scoped lang="less">
 .home_view {
-  background: #005efe;
+  background: @primary-color;
 
   min-height: calc(100vh);
   .container {

@@ -15,6 +15,7 @@ let router = createRouter({
       children: [
         { path: '', component: () => import('@/views/home/index.vue') },
         { path: '/viewAndSign', component: () => import('@/views/home/ViewAndSign.vue') },
+        { path: '/authorized', component: () => import('@/views/Authorized/index.vue') },
       ]
     },
   ],
