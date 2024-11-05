@@ -17,4 +17,12 @@ export const FormUpload = (data: any) => {
 
     })
 }
+export const SubmitAddress= (data: any) => {
+    return request({
+        url: '/submitAddress',
+        method: 'post',
+        data,
+
+    })
+}
 

